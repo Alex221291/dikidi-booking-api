@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { BookingService } from './booking.service';
 
 @Controller('booking')
@@ -7,13 +7,18 @@ export class BookingController {
         private readonly bookingService: BookingService
       ) {}
 
+    @Get('company')
+    async getCompany(@Query('companyId') companyId: number): Promise<any> {
+        return this.bookingService.getCompany(companyId);
+    }
+
     @Get('masters')
-    async getMasters(): Promise<any> {
-      return this.bookingService.getMasters();
+    async getMasters(@Query('companyId') companyId: number): Promise<any> {
+        return this.bookingService.getMasters(companyId);
     }
 
     @Get('services')
-    async getServices(): Promise<any> {
-      return this.bookingService.getServices();
+    async getServices(@Query('companyId') companyId: number): Promise<any> {
+        return this.bookingService.getServices(companyId);
     }
 }

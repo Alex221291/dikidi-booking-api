@@ -6,13 +6,18 @@ export class BookingService {
     constructor(private dikidiService: DikidiService)
     {}
 
-    async getMasters(): Promise<any> {
-        const result =  await this.dikidiService.getMasters();
+    async getCompany(companyId: number): Promise<any> {
+        const result =  await this.dikidiService.getCompany(companyId);
         return result;
     }
 
-    async getServices(): Promise<any> {
-        const result =  await this.dikidiService.getServices();
+    async getMasters(companyId: number): Promise<any> {
+        const result =  await this.dikidiService.getMasters(companyId);
+        return result;
+    }
+
+    async getServices(companyId: number): Promise<any> {
+        const result =  await this.dikidiService.getServices(companyId);
         return result;
     }
 }
