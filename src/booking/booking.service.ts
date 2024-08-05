@@ -20,4 +20,14 @@ export class BookingService {
         const result =  await this.dikidiService.getServices(companyId);
         return result;
     }
+
+    async getMaster(companyId: number, masterId: number): Promise<any> {
+        const result =  await this.dikidiService.getMaster(companyId, masterId);
+        return result;
+    }
+
+    async getDatetimes(companyId: number, masterId: number, serviceId: number, date: string): Promise<any> {
+        const result =  await this.dikidiService.getDatetimes(companyId, masterId, serviceId, date);
+        return result;
+    }
 }
