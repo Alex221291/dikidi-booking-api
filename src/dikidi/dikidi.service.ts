@@ -7,9 +7,11 @@ export class DikidiService {
     constructor(private readonly httpService: HttpService) {}
 
     async getMasters(companyId: number): Promise<any> {
+        console.log('dikidi - ' + companyId);
         const data = this.httpService.get(`https://dikidi.ru/ru/ajax/newrecord/to_master_get_masters/?company_id=${companyId}`)
             .pipe(
                 map(response => response.data));
+        console.log(data);
         return data;
     }
 

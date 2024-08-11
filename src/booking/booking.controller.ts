@@ -14,6 +14,7 @@ export class BookingController {
 
     @Get('masters')
     async getMasters(@Query('companyId') companyId: number): Promise<any> {
+        console.log('controller - ' + companyId);
         return this.bookingService.getMasters(companyId);
     }
 

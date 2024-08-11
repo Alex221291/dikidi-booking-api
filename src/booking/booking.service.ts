@@ -12,6 +12,7 @@ export class BookingService {
     }
 
     async getMasters(companyId: number): Promise<any> {
+        console.log('service - ' + companyId);
         const result =  await this.dikidiService.getMasters(companyId);
         return result;
     }
