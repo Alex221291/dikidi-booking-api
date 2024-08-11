@@ -1,5 +1,8 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { BookingService } from './booking.service';
+import { GetCompanyDto } from './dto/get-company.dto';
+import { GetMasterDto } from './dto/get-master.dto';
+import { GetCategoryWithServiceDto } from './dto/get-service.dto';
 
 @Controller('booking')
 export class BookingController {
@@ -8,14 +11,13 @@ export class BookingController {
       ) {}
 
     @Get('company')
-    async getCompany(@Query('companyId') companyId: number): Promise<any> {
-        return this.bookingService.getCompany(companyId);
+    async getCompany(@Query('companyId') companyId: number): Promise<GetCompanyDto | null> {
+        return await this.bookingService.getCompany(companyId);
     }
 
     @Get('masters')
-    async getMasters(@Query('companyId') companyId: number): Promise<any> {
-        console.log('controller - ' + companyId);
-        return this.bookingService.getMasters(companyId);
+    async getMasters(@Query('companyId') companyId: number): Promise<GetMasterDto[] | []> {
+        return await this.bookingService.getMasters(companyId);
     }
 
     @Get('masters/info')
@@ -23,8 +25,13 @@ export class BookingController {
         return this.bookingService.getMaster(companyId, masterId);
     }
 
+    @Get('masters/full-info')
+    async getMastersFullInfo(@Query('companyId') companyId: number): Promise<any> {
+        return await this.bookingService.getMastersFullInfo(companyId);
+    }
+
     @Get('services')
-    async getServices(@Query('companyId') companyId: number): Promise<any> {
+    async getServices(@Query('companyId') companyId: number): Promise<GetCategoryWithServiceDto> {
         return this.bookingService.getServices(companyId);
     }
 
