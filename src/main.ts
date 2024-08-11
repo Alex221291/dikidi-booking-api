@@ -23,6 +23,15 @@ async function bootstrap() {
     "optionsSuccessStatus": 200
    });
 
+   app.enableCors({
+    "origin": process.env.HOST_NAME,
+    "methods": 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    "allowedHeaders": '*',
+    "credentials": true,
+    "preflightContinue": false,
+    "optionsSuccessStatus": 200
+  });
+
   app.useGlobalInterceptors(new LoggingInterceptor());
   
   await app.listen(PORT, () => console.log(`Server started on port = ${PORT}`));
