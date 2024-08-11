@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { LoggingInterceptor } from './logger/logging.interceptor';
+import { HeaderInterceptor } from './interceptors/header.interceptor';
 
 async function bootstrap() {
   const PORT = process.env.PORT || 5000;
@@ -15,22 +16,24 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors({
-    "origin": process.env.HOST_NAME,
-    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
-    "allowedHeaders": 'Content-Type, Accept',
-    "preflightContinue": false,
-    "optionsSuccessStatus": 200
-   });
+  // app.enableCors({
+  //   "origin": process.env.HOST_NAME,
+  //   "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+  //   "allowedHeaders": 'Content-Type, Accept',
+  //   "preflightContinue": false,
+  //   "optionsSuccessStatus": 200
+  //  });
 
-   app.enableCors({
-    "origin": process.env.HOST_NAME,
-    "methods": 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    "allowedHeaders": '*',
-    "credentials": true,
-    "preflightContinue": false,
-    "optionsSuccessStatus": 200
-  });
+  //  app.enableCors({
+  //   "origin": process.env.HOST_NAME,
+  //   "methods": 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  //   "allowedHeaders": '*',
+  //   "credentials": true,
+  //   "preflightContinue": false,
+  //   "optionsSuccessStatus": 200
+  // });
+  app.enableCors();
+  app.useGlobalInterceptors(new HeaderInterceptor());
 
   app.useGlobalInterceptors(new LoggingInterceptor());
   
