@@ -7,7 +7,7 @@ export interface GetMasterFullInfoDto {
     description?: string;
     image?: string;
     gallery?: Gallery[];
-    services?: GetServiceDto[];
+    services?: ServiceDateTimes[];
     currency?: Currency;
 }
 
@@ -21,5 +21,16 @@ export interface Currency {
 export interface Gallery{
     big?: string,
     zoom?: string,
+}
+
+export interface ServiceDateTimes {
+    id?: string;
+    name?: string;
+    image?: string;
+    time?: number;
+    price?: number;
+    //dateTrue?: string[];
+    //date_near?: string;
+    //times?: string[];
 }
 

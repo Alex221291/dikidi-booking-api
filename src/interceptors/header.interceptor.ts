@@ -5,11 +5,10 @@ import { tap } from 'rxjs/operators';
 @Injectable()
 export class HeaderInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    return next.handle().pipe(
-      tap(() => {
-        const res = context.switchToHttp().getResponse();
-        res.setHeader('Access-Control-Allow-Origin', '*'); // Установить заголовок CORS
-      })
-    );
+    const res = context.switchToHttp().getResponse();
+    if (res && typeof res.setHeader === 'function') {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+    return next.handle();
   }
 }

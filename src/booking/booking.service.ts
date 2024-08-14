@@ -3,6 +3,7 @@ import { DikidiService } from 'src/dikidi/dikidi.service';
 import { GetCompanyDto } from './dto/get-company.dto';
 import { GetMasterDto } from './dto/get-master.dto';
 import { GetCategoryWithServiceDto, GetServiceDto } from './dto/get-service.dto';
+import { GetMasterServiceDatetimes } from './dto/get-master-service-datetimes.dto';
 import { GetMasterFullInfoDto } from './dto/get-master-full-info.dto';
 
 @Injectable()
@@ -66,17 +67,22 @@ export class BookingService {
         }) ;
     }
 
+    delay(ms: number) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
     async getMastersFullInfo(companyId: number): Promise<GetMasterFullInfoDto[] | []> {
         const data =  await this.dikidiService.getMasters(companyId);
 
         const masterIds = data?.masters_order;
 
-        return Promise.all(masterIds?.map(async item => {
+        const masters =  Promise.all(masterIds?.map(async item => {
+            await this.delay(1000);
             const masterData = (await this.dikidiService.getMaster(companyId, item))?.data;
-
+            console.log(masterData.id);
             const master: GetMasterFullInfoDto = {
                 id: masterData?.id,
-                name: masterData?.name,
+                name: masterData?.username,
                 post: masterData?.post,
                 description: masterData?.description,
                 image: masterData?.image,
@@ -92,27 +98,80 @@ export class BookingService {
                         zoom: gal?.zoom,
                     }
                 }),
-                services: masterData?.services?.map(service  => {
+                services: await Promise.all(masterData?.services?.map(async service  => {
+                    //console.log(masterData.id + ' - ' + service.id);
+                    await this.delay(1000);
+                    //const serviceDateTimes = await this.dikidiService.getDatetimes(companyId, masterData?.id, service?.id, '');
                     return {
                         id: service?.id,
                         name: service?.name,
                         image: service?.image,
                         time: service?.time,
                         price: service?.price,
+                        //dateTrue: serviceDateTimes?.data?.dates_true,
+                        //dateNear: serviceDateTimes?.data?.date_near,
+                        //times: serviceDateTimes?.data?.times[masterData?.id],
                     }
-                })
+                }))
             };
             return master;
         }));
+        return masters;
     }
 
-    async getMaster(companyId: number, masterId: number): Promise<any> {
-        const result =  await this.dikidiService.getMaster(companyId, masterId);
-        return result;
+    async getMasterFullInfo(companyId: number, masterId: number): Promise<GetMasterFullInfoDto | null> {
+        const masterData = (await this.dikidiService.getMaster(companyId, masterId))?.data;
+        const master: GetMasterFullInfoDto = {
+            id: masterData?.id,
+            name: masterData?.username,
+            post: masterData?.post,
+            description: masterData?.description,
+            image: masterData?.image,
+            currency: {
+                id: masterData?.currency?.id,
+                title: masterData?.currency?.title,
+                abbr: masterData?.currency?.abbr,
+                iso: masterData?.currency?.iso,
+            },
+            gallery: masterData?.gallery?.map(gal  => {
+                return {
+                    big: gal?.big,
+                    zoom: gal?.zoom,
+                }
+            }),
+            services: await Promise.all(masterData?.services?.map(async service  => {
+                //console.log(masterData.id + ' - ' + service.id);
+                //const serviceDateTimes = await this.dikidiService.getDatetimes(companyId, masterData?.id, service?.id, '');
+                return {
+                    id: service?.id,
+                    name: service?.name,
+                    image: service?.image,
+                    time: service?.time,
+                    price: service?.price,
+                    //dateTrue: serviceDateTimes?.data?.dates_true,
+                    //dateNear: serviceDateTimes?.data?.date_near,
+                    //times: serviceDateTimes?.data?.times[masterData?.id],
+                }
+            }))
+        };
+        return master;
     }
 
-    async getDatetimes(companyId: number, masterId: number, serviceId: number, date: string): Promise<any> {
-        const result =  await this.dikidiService.getDatetimes(companyId, masterId, serviceId, date);
-        return result;
+    async getMasterServiceDatetimes(companyId: number, masterId: number, serviceId: number, date: string): Promise<GetMasterServiceDatetimes> {
+        const masterDatetimes =  (await this.dikidiService.getDatetimes(companyId, masterId, serviceId, date))?.data;
+        return {
+            id: masterDatetimes?.masters[masterId]?.id,
+            name: masterDatetimes?.masters[masterId]?.username,
+            image: masterDatetimes?.masters[masterId]?.image,
+            serviceName: masterDatetimes?.masters[masterId]?.service_name,
+            serviceImage: masterDatetimes?.masters[masterId]?.service_image,
+            price: masterDatetimes?.masters[masterId]?.price,
+            time: masterDatetimes?.masters[masterId]?.time,
+            workData:{
+                dateTrue: masterDatetimes?.dates_true,
+                dateNear: masterDatetimes?.date_near,
+                times: masterDatetimes?.times[masterId],
+            }
+        };;
     }
 }
