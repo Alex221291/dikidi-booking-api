@@ -143,7 +143,7 @@ export class BookingService {
                 return {
                     id: service?.id,
                     name: service?.name,
-                    image: service?.image,
+                    image: service?.icon?.url,
                     time: service?.time,
                     price: service?.price,
                 }

@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Salon {
+  id    String     @default(uuid()) @id
+  dkdCompanyId    String
+  tgBotId    String
+  tgToken    String
+  users User[]
+  @@map("salons")
+}
+
+model User {
+  id    String     @default(uuid()) @id
+  userId    String? @default(uuid())
+  role    UserRoles
+  salon    Salon?    @relation(fields: [salonId], references: [id])
+  salonId  String? @default(uuid())
+  @@map("users")
+}
+
+model Client {
+  id    String     @default(uuid()) @id
+  tgUserId    String?
+  tgUserName    String?
+  tgChatId    String?
+  name    String?
+  phone    String?
+  rewiers Review[]
+  records Record[]
+  @@map("clients")
+}
+
+model Staff {
+  id    String     @default(uuid()) @id
+  tgUserId    String?
+  tgUserName    String?
+  tgChatId    String?
+  rewiers Review[]
+  records Record[]
+  @@map("staff")
+}
+
+model Review {
+  id    String     @default(uuid()) @id
+  name    String?
+  description    String?
+  date    DateTime @default(now()) @db.Date
+  score    Int?
+  client    Client?    @relation(fields: [clientId], references: [id])
+  clientId  String? @default(uuid())
+  staff    Staff?    @relation(fields: [staffId], references: [id])
+  staffId  String? @default(uuid())
+  @@map("reviews")
+}
+
+model Record {
+  id    String     @default(uuid()) @id
+  dkdRocordId    String?
+  client    Client?    @relation(fields: [clientId], references: [id])
+  clientId  String? @default(uuid())
+  staff    Staff?    @relation(fields: [staffId], references: [id])
+  staffId  String? @default(uuid())
+  @@map("records")
+}
+
+enum UserRoles {
+  DIRECTOR
+  ADMINISTRATOR
+  MASTER
+  CLIENT  
+}
