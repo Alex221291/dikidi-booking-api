@@ -1,0 +1,14 @@
+services:
+  dikidi_backend:
+    image: imageName
+    container_name: dikidi_backend
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - dikidi
+
+networks:
+  dikidi:
+    external: true
+    name: dikidi
