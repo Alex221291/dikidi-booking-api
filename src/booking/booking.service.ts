@@ -139,20 +139,15 @@ export class BookingService {
                     zoom: gal?.zoom,
                 }
             }),
-            services: await Promise.all(masterData?.services?.map(async service  => {
-                //console.log(masterData.id + ' - ' + service.id);
-                //const serviceDateTimes = await this.dikidiService.getDatetimes(companyId, masterData?.id, service?.id, '');
+            services: masterData?.services?.map(service  => {
                 return {
                     id: service?.id,
                     name: service?.name,
                     image: service?.image,
                     time: service?.time,
                     price: service?.price,
-                    //dateTrue: serviceDateTimes?.data?.dates_true,
-                    //dateNear: serviceDateTimes?.data?.date_near,
-                    //times: serviceDateTimes?.data?.times[masterData?.id],
                 }
-            }))
+            })
         };
         return master;
     }

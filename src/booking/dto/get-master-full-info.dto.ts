@@ -29,8 +29,5 @@ export interface ServiceDateTimes {
     image?: string;
     time?: number;
     price?: number;
-    //dateTrue?: string[];
-    //date_near?: string;
-    //times?: string[];
 }
 
