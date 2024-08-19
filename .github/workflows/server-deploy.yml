@@ -36,8 +36,6 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-        echo TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} >> .env
-        echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
         docker build -t ${{ env.DOCKER_IMAGE_LINK }} .
         docker push ${{ env.DOCKER_IMAGE_LINK }}
 
@@ -52,6 +50,8 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER }} << 'EOF'
+          echo TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} >> .env
+          echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
           REPOSITORY_NAME_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           REPOSITORY_BASE_NAME=$(echo "$REPOSITORY_NAME_LOWER" | cut -d'/' -f2)
           SERVER_PATH=${HOME}/dikidi/$REPOSITORY_BASE_NAME
