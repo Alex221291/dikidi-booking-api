@@ -3,7 +3,6 @@ import { HttpService} from '@nestjs/axios';
 import { lastValueFrom, map, Observable } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import * as qs from 'qs';
-const session = process.env.SESSION;
 @Injectable()
 export class DikidiService {
     constructor(private readonly httpService: HttpService) {}
@@ -35,14 +34,14 @@ export class DikidiService {
     }
 
     async getCompany(companyId: string): Promise<any> {
-        const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/ru/mobile/ajax/newrecord/project_options/?company=${companyId}&session=${session}&social_key=`)
+        const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/ru/mobile/ajax/newrecord/project_options/?company=${companyId}&social_key=`)
             .pipe(
                 map(response => response.data)));
         return data;
     }
 
     async getMaster(companyId: string, masterId: string): Promise<any> {
-        const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/ru/mobile/ajax/newrecord/master_info/?session=${session}&social_key=&company_id=${companyId}&master_id=${masterId}`)
+        const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/ru/mobile/ajax/newrecord/master_info/?social_key=&company_id=${companyId}&master_id=${masterId}`)
             .pipe(
                 map(response => response.data)));
         return data;
