@@ -17,8 +17,9 @@ jobs:
       id: set-env
       run: |
         echo "DOCKER_IMAGE_NAME=dikidi_backend" >> $GITHUB_ENV
-        echo "DOCKER_IMAGE_LINK=ghcr.io/${{ github.repository }}/dikidi_backend:${{ github.ref_name }}" >> $GITHUB_ENV
-        echo "::set-output name=docker_image_link::ghcr.io/${{ github.repository }}/dikidi_backend:${{ github.ref_name }}"
+        REPOSITORY_NAME_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+        echo "DOCKER_IMAGE_LINK=ghcr.io/$REPOSITORY_NAME_LOWER/dikidi_backend:${{ github.ref_name }}" >> $GITHUB_ENV
+        echo "::set-output name=docker_image_link::ghcr.io/$REPOSITORY_NAME_LOWER/dikidi_backend:${{ github.ref_name }}"
 
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -51,10 +52,11 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER }} << 'EOF'
-          SERVER_PATH=${HOME}/dikidi/${{ github.repository }}
+          REPOSITORY_NAME_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          SERVER_PATH=${HOME}/dikidi/$REPOSITORY_NAME_LOWER
           mkdir -p $SERVER_PATH
           cd $SERVER_PATH
-          curl -O https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/docker-compose.yml
+          curl -O https://raw.githubusercontent.com/$REPOSITORY_NAME_LOWER/${{ github.ref_name }}/docker-compose.yml
           sed -i "s|image: .*|image: ${{ needs.build-and-push.outputs.docker_image_link }}|" docker-compose.yml
           docker-compose pull
           docker-compose up -d
