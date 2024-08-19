@@ -24,6 +24,9 @@ model Salon {
 
 model User {
   id    String     @default(uuid()) @id
+  tgUserId    String?
+  tgUserName    String?
+  tgChatId    String?
   userId    String? @default(uuid())
   role    UserRoles
   salon    Salon?    @relation(fields: [salonId], references: [id])
@@ -33,9 +36,6 @@ model User {
 
 model Client {
   id    String     @default(uuid()) @id
-  tgUserId    String?
-  tgUserName    String?
-  tgChatId    String?
   name    String?
   phone    String?
   rewiers Review[]
@@ -45,11 +45,9 @@ model Client {
 
 model Staff {
   id    String     @default(uuid()) @id
-  tgUserId    String?
-  tgUserName    String?
-  tgChatId    String?
   rewiers Review[]
   records Record[]
+  contacts StaffContact[]
   @@map("staff")
 }
 
@@ -68,7 +66,7 @@ model Review {
 
 model Record {
   id    String     @default(uuid()) @id
-  dkdRocordId    String?
+  dkdRecordId    String?
   client    Client?    @relation(fields: [clientId], references: [id])
   clientId  String? @default(uuid())
   staff    Staff?    @relation(fields: [staffId], references: [id])
@@ -76,9 +74,24 @@ model Record {
   @@map("records")
 }
 
+model StaffContact {
+  id    String     @default(uuid()) @id
+  type    ContactTypes
+  value   String?
+  staff    Staff?    @relation(fields: [staffId], references: [id])
+  staffId  String? @default(uuid())
+  @@map("staff_contacts")
+}
+
 enum UserRoles {
   DIRECTOR
   ADMINISTRATOR
   MASTER
   CLIENT  
+}
+
+enum ContactTypes {
+  TELEGRAM
+  VIBER
+  WHATSAPP  
 }

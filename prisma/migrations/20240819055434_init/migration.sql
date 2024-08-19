@@ -1,6 +1,9 @@
 -- CreateEnum
 CREATE TYPE "UserRoles" AS ENUM ('DIRECTOR', 'ADMINISTRATOR', 'MASTER', 'CLIENT');
 
+-- CreateEnum
+CREATE TYPE "ContactTypes" AS ENUM ('TELEGRAM', 'VIBER', 'WHATSAPP');
+
 -- CreateTable
 CREATE TABLE "salons" (
     "id" TEXT NOT NULL,
@@ -14,6 +17,9 @@ CREATE TABLE "salons" (
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
+    "tgUserId" TEXT,
+    "tgUserName" TEXT,
+    "tgChatId" TEXT,
     "userId" TEXT,
     "role" "UserRoles" NOT NULL,
     "salonId" TEXT,
@@ -24,9 +30,6 @@ CREATE TABLE "users" (
 -- CreateTable
 CREATE TABLE "clients" (
     "id" TEXT NOT NULL,
-    "tgUserId" TEXT,
-    "tgUserName" TEXT,
-    "tgChatId" TEXT,
     "name" TEXT,
     "phone" TEXT,
 
@@ -36,9 +39,6 @@ CREATE TABLE "clients" (
 -- CreateTable
 CREATE TABLE "staff" (
     "id" TEXT NOT NULL,
-    "tgUserId" TEXT,
-    "tgUserName" TEXT,
-    "tgChatId" TEXT,
 
     CONSTRAINT "staff_pkey" PRIMARY KEY ("id")
 );
@@ -59,11 +59,21 @@ CREATE TABLE "reviews" (
 -- CreateTable
 CREATE TABLE "records" (
     "id" TEXT NOT NULL,
-    "dkdRocordId" TEXT,
+    "dkdRecordId" TEXT,
     "clientId" TEXT,
     "staffId" TEXT,
 
     CONSTRAINT "records_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "staff_contacts" (
+    "id" TEXT NOT NULL,
+    "type" "ContactTypes" NOT NULL,
+    "value" TEXT,
+    "staffId" TEXT,
+
+    CONSTRAINT "staff_contacts_pkey" PRIMARY KEY ("id")
 );
 
 -- AddForeignKey
@@ -80,3 +90,6 @@ ALTER TABLE "records" ADD CONSTRAINT "records_clientId_fkey" FOREIGN KEY ("clien
 
 -- AddForeignKey
 ALTER TABLE "records" ADD CONSTRAINT "records_staffId_fkey" FOREIGN KEY ("staffId") REFERENCES "staff"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "staff_contacts" ADD CONSTRAINT "staff_contacts_staffId_fkey" FOREIGN KEY ("staffId") REFERENCES "staff"("id") ON DELETE SET NULL ON UPDATE CASCADE;
