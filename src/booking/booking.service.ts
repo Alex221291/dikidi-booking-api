@@ -11,7 +11,7 @@ export class BookingService {
     constructor(private dikidiService: DikidiService)
     {}
 
-    async getCompany(companyId: number): Promise<GetCompanyDto | null> {
+    async getCompany(companyId: string): Promise<GetCompanyDto | null> {
         const data =  await this.dikidiService.getCompany(companyId);
         const company = data?.data?.company;
 
@@ -33,7 +33,7 @@ export class BookingService {
         };
     }
 
-    async getMasters(companyId: number): Promise<GetMasterDto[] | []> {
+    async getMasters(companyId: string): Promise<GetMasterDto[] | []> {
         const data =  await this.dikidiService.getMasters(companyId);
 
         return data?.masters_order?.map(item => {
@@ -46,7 +46,7 @@ export class BookingService {
         });
     }
 
-    async getServices(companyId: number): Promise<GetCategoryWithServiceDto> {
+    async getServices(companyId: string): Promise<GetCategoryWithServiceDto> {
         const data =  await this.dikidiService.getServices(companyId);
         const categories = data?.data?.list;
 
@@ -71,7 +71,7 @@ export class BookingService {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
-    async getMastersFullInfo(companyId: number): Promise<GetMasterFullInfoDto[] | []> {
+    async getMastersFullInfo(companyId: string): Promise<GetMasterFullInfoDto[] | []> {
         const data =  await this.dikidiService.getMasters(companyId);
 
         const masterIds = data?.masters_order;
@@ -119,7 +119,7 @@ export class BookingService {
         return masters;
     }
 
-    async getMasterFullInfo(companyId: number, masterId: number): Promise<GetMasterFullInfoDto | null> {
+    async getMasterFullInfo(companyId: string, masterId: string): Promise<GetMasterFullInfoDto | null> {
         const masterData = (await this.dikidiService.getMaster(companyId, masterId))?.data;
         const master: GetMasterFullInfoDto = {
             id: masterData?.id,
@@ -152,8 +152,8 @@ export class BookingService {
         return master;
     }
 
-    async getMasterServiceDatetimes(companyId: number, masterId: number, serviceId: number, date: string): Promise<GetMasterServiceDatetimes> {
-        const masterDatetimes =  (await this.dikidiService.getDatetimes(companyId, masterId, serviceId, date))?.data;
+    async getMasterServiceDatetimes(companyId: string, masterId: string, serviceId: string[], date: string): Promise<GetMasterServiceDatetimes> {
+        const masterDatetimes =  (await this.dikidiService.getDatetimes(companyId, masterId, serviceId[0], date))?.data;
         return {
             id: masterDatetimes?.masters[masterId]?.id,
             name: masterDatetimes?.masters[masterId]?.username,
@@ -168,5 +168,30 @@ export class BookingService {
                 times: masterDatetimes?.times[masterId],
             }
         };;
+    }
+
+    async timeReservation(companyId: string, masterId: string, serviceId: string[], time: string): Promise<any> {
+        const reservation =  (await this.dikidiService.timeReservation(companyId, masterId, serviceId, time));
+        return {
+            recordId: reservation?.record_id,
+            durationString: reservation?.duration_string,
+        };
+    }
+    async check(companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
+        const checkStatus =  (await this.dikidiService.check(companyId, phone, firstName, comment));
+        console.log(checkStatus);
+        return checkStatus == 200 ? true : false;
+    }
+
+    async record(companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
+        const record =  (await this.dikidiService.record(companyId, phone, firstName, comment));
+        console.log(record);
+        return record
+    }
+
+    async recordInfo(companyId: string, recordIdList: string[]): Promise<any> {
+        const record =  (await this.dikidiService.recordsInfo(companyId, recordIdList));
+        console.log(record);
+        return record
     }
 }
