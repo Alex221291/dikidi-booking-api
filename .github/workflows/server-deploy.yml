@@ -11,7 +11,6 @@ jobs:
 
     outputs:
       docker_image_link: ${{ steps.set-env.outputs.docker_image_link }}
-      server_path: ${{ steps.set-env.outputs.server_path }}
 
     steps:
     - name: Set environment variables
@@ -19,10 +18,7 @@ jobs:
       run: |
         echo "DOCKER_IMAGE_NAME=dikidi_backend" >> $GITHUB_ENV
         echo "DOCKER_IMAGE_LINK=ghcr.io/${{ github.repository }}/dikidi_backend:${{ github.ref_name }}" >> $GITHUB_ENV
-        echo "PROJECT_NAME=dikidi" >> $GITHUB_ENV
-        echo "SERVER_PATH=${HOME}/dikidi/${{ github.repository }}" >> $GITHUB_ENV
         echo "::set-output name=docker_image_link::ghcr.io/${{ github.repository }}/dikidi_backend:${{ github.ref_name }}"
-        echo "::set-output name=server_path::${HOME}/dikidi/${{ github.repository }}"
 
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -55,10 +51,11 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER }} << 'EOF'
-          mkdir -p ${{ needs.build-and-push.outputs.server_path }}/${{ github.repository }}
-          cd ${{ needs.build-and-push.outputs.server_path }}/${{ github.repository }}
+          SERVER_PATH=${HOME}/dikidi/${{ github.repository }}
+          mkdir -p $SERVER_PATH
+          cd $SERVER_PATH
           curl -O https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/docker-compose.yml
-          sed -i 's|image: .*|image: ${{ needs.build-and-push.outputs.docker_image_link }}|' docker-compose.yml
+          sed -i "s|image: .*|image: ${{ needs.build-and-push.outputs.docker_image_link }}|" docker-compose.yml
           docker-compose pull
           docker-compose up -d
           # Очистка неиспользуемых Docker-образов
