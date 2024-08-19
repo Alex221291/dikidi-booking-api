@@ -53,13 +53,14 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER }} << 'EOF'
           REPOSITORY_NAME_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          SERVER_PATH=${HOME}/dikidi/$REPOSITORY_NAME_LOWER
+          REPOSITORY_BASE_NAME=$(echo "$REPOSITORY_NAME_LOWER" | cut -d'/' -f2)
+          SERVER_PATH=${HOME}/dikidi/$REPOSITORY_BASE_NAME
           mkdir -p $SERVER_PATH
           cd $SERVER_PATH
           curl -O https://raw.githubusercontent.com/$REPOSITORY_NAME_LOWER/${{ github.ref_name }}/docker-compose.yml
           sed -i "s|image: .*|image: ${{ needs.build-and-push.outputs.docker_image_link }}|" docker-compose.yml
-          docker-compose pull
-          docker-compose up -d
+          docker compose pull
+          docker compose up -d
           # Очистка неиспользуемых Docker-образов
           unused_images=$(docker images -q --filter "dangling=true")
           if [ -n "$unused_images" ]; then
