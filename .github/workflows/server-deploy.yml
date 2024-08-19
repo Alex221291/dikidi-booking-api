@@ -20,7 +20,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    steps:
     - name: Set up Docker-in-Docker
       uses: docker/setup-docker@v1
       with:
