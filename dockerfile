@@ -20,4 +20,4 @@ COPY --from=build /app/package*.json ./
 
 EXPOSE 5000
 
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
