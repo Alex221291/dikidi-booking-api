@@ -18,7 +18,7 @@ jobs:
       id: set-env
       run: |
         echo "DOCKER_IMAGE_NAME=dikidi_backend" >> $GITHUB_ENV
-        echo "DOCKER_IMAGE_TAG=${{ github.ref }}" >> $GITHUB_ENV
+        echo "DOCKER_IMAGE_TAG=${{ github.ref_name }}" >> $GITHUB_ENV
         echo "DOCKER_IMAGE_LINK=ghcr.io/${{ github.repository }}/dikidi_backend:${{ env.DOCKER_IMAGE_TAG }}" >> $GITHUB_ENV
         echo "PROJECT_NAME=dikidi" >> $GITHUB_ENV
         echo "SERVER_PATH=${HOME}/dikidi/${{ github.repository }}" >> $GITHUB_ENV
@@ -58,7 +58,7 @@ jobs:
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER }} << 'EOF'
           mkdir -p ${{ needs.build-and-push.outputs.server_path }}/${{ github.repository }}
           cd ${{ needs.build-and-push.outputs.server_path }}/${{ github.repository }}
-          curl -O https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref }}/docker-compose.yml
+          curl -O https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/docker-compose.yml
           sed -i 's|image: .*|image: ${{ needs.build-and-push.outputs.docker_image_link }}|' docker-compose.yml
           docker-compose pull
           docker-compose up -d
