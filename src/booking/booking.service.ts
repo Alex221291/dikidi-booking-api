@@ -205,6 +205,6 @@ export class BookingService {
 
         const record =  await this.record(companyId, phone, firstName, comment);
         console.log(record);
-        return record?.error ? record?.error : record;
+        return record?.error ? record?.message : record;
     }
 }
