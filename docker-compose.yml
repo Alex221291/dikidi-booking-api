@@ -4,7 +4,7 @@ services:
     container_name: dikidi_backend
     restart: always
     env_file:
-      - deploy.env
+      - .env
     ports:
       - 5000:5000
     networks:
