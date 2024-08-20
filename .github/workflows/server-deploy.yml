@@ -6,7 +6,6 @@ on:
       - main
 
 
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -27,6 +26,7 @@ jobs:
 
   build-and-push:
     runs-on: ubuntu-latest
+    needs: test
 
     outputs:
       docker_image_link: ${{ steps.set-env.outputs.docker_image_link }}
