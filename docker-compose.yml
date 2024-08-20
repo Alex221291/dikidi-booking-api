@@ -3,11 +3,14 @@ services:
     image: dikidi-b
     container_name: dikidi_backend
     restart: always
-    # ports:
-    #   - 3000:3000
+    env_file:
+      - .env
+    ports:
+      - 5000:5000
     networks:
       - dikidi
   
 networks:
   dikidi:
     name: dikidi
+    external: true
