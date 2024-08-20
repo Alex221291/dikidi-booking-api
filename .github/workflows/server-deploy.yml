@@ -5,7 +5,6 @@ on:
     branches:
       - main
 
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -22,7 +21,8 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: Install dependencies
       run: npm install
-
+    - name: Start test
+      run: npm test
 
   build-and-push:
     runs-on: ubuntu-latest
@@ -78,9 +78,13 @@ jobs:
         REPOSITORY_BASE_NAME=$(echo "$REPOSITORY_NAME_LOWER" | cut -d'/' -f2)
         SERVER_PATH=$HOME/dikidi/$REPOSITORY_BASE_NAME
         docker compose -f $SERVER_PATH/docker-compose.yml down && docker rmi ${{ needs.build-and-push.outputs.docker_image_link }}
-        rmdir $SERVER_PATH && mkdir -p $SERVER_PATH && cd $SERVER_PATH
+        rm -rf $SERVER_PATH && mkdir -p $SERVER_PATH && cd $SERVER_PATH
         curl -O https://raw.githubusercontent.com/$REPOSITORY_NAME_LOWER/${{ github.ref_name }}/docker-compose.yml
         curl -O https://raw.githubusercontent.com/$REPOSITORY_NAME_LOWER/${{ github.ref_name }}/.env
+        if [ ! -f .env ]; then
+          echo "Error: .env file not found. Please ensure it exists in the repository."
+          exit 1
+        fi
         sed -i "s|image: .*|image: ${{ needs.build-and-push.outputs.docker_image_link }}|" docker-compose.yml
         echo TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} >> .env
         echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
