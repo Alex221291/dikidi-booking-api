@@ -45,6 +45,12 @@ export class BookingController {
         return result;
     }
 
+    @Post('new-record')
+    async newRecord(@Query('masterId') masterId: string, @Query('serviceId') serviceId: string[], @Query('time') time: string, @Query('phone') phone: string, @Query('firstName') firstName: string, @Query('comment') comment?: string): Promise<any> {
+        const result =  await this.bookingService.newRecord(this._companyId, masterId, serviceId, time, phone, firstName, comment);
+        return result;
+    }
+
     @Get('new-record/time-reservation')
     async timeReservation(@Query('masterId') masterId: string, @Query('serviceId') serviceId: string[], @Query('time') time: string): Promise<any> {
         const result =  await this.bookingService.timeReservation(this._companyId, masterId, serviceId, time);

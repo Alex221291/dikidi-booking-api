@@ -172,10 +172,11 @@ export class BookingService {
 
     async timeReservation(companyId: string, masterId: string, serviceId: string[], time: string): Promise<any> {
         const reservation =  (await this.dikidiService.timeReservation(companyId, masterId, serviceId, time));
-        return {
-            recordId: reservation?.record_id,
-            durationString: reservation?.duration_string,
-        };
+        return reservation;
+        // return {
+        //     recordId: reservation?.record_id,
+        //     durationString: reservation?.duration_string,
+        // };
     }
     async check(companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
         const checkStatus =  (await this.dikidiService.check(companyId, phone, firstName, comment));
@@ -186,12 +187,24 @@ export class BookingService {
     async record(companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
         const record =  (await this.dikidiService.record(companyId, phone, firstName, comment));
         console.log(record);
-        return record
+        return record;
     }
 
     async recordInfo(companyId: string, recordIdList: string[]): Promise<any> {
-        const record =  (await this.dikidiService.recordsInfo(companyId, recordIdList));
+        const recordInfo =  (await this.dikidiService.recordsInfo(companyId, recordIdList));
+        console.log(recordInfo);
+        return recordInfo;
+    }
+
+    async newRecord(companyId: string, masterId: string, serviceId: string[], time: string, phone: string, firstName: string, comment?: string): Promise<any> {
+        const timeReservation = await this.timeReservation(companyId, masterId, serviceId, time);
+        if(timeReservation?.error)
+            return timeReservation?.message;
+
+        const check = await this.check(companyId, phone, firstName, comment);
+
+        const record =  await this.record(companyId, phone, firstName, comment);
         console.log(record);
-        return record
+        return record;
     }
 }
