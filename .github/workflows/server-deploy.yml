@@ -57,7 +57,7 @@ jobs:
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER }} << 'EOF'
         REPOSITORY_NAME_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
         REPOSITORY_BASE_NAME=$(echo "$REPOSITORY_NAME_LOWER" | cut -d'/' -f2)
-        SERVER_PATH=${HOME}/dikidi/$REPOSITORY_BASE_NAME
+        SERVER_PATH=$HOME/dikidi/$REPOSITORY_BASE_NAME
         docker compose -f $SERVER_PATH/docker-compose.yml down && docker rmi ${{ needs.build-and-push.outputs.docker_image_link }}
         rmdir $SERVER_PATH && mkdir -p $SERVER_PATH && cd $SERVER_PATH
         curl -O https://raw.githubusercontent.com/$REPOSITORY_NAME_LOWER/${{ github.ref_name }}/docker-compose.yml
