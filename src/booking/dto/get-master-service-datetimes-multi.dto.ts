@@ -10,9 +10,9 @@ export interface WorkDataInfo {
 }
 
 export interface ServiceInfo {
-    serviceId?: string;
-    serviceName?: string;
-    serviceImage?: string;
+    id?: string;
+    name?: string;
+    image?: string;
     time?: string;
     price?: string;
 }
