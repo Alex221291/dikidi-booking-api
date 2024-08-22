@@ -1,5 +1,3 @@
-import { GetServiceDto } from "./get-service.dto";
-
 export interface GetMasterServiceDatetimes {
     id?: string;
     name?: string;

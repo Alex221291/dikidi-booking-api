@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, ParseArrayPipe, Post, Query } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { GetCompanyDto } from './dto/get-company.dto';
 import { GetMasterDto } from './dto/get-master.dto';
 import { GetCategoryWithServiceDto } from './dto/get-service.dto';
+import { RequestGetDateTimesDto, RequestMasterServicesDateTimesDto } from './dto/request-get-date-times-multi.dto';
+import { GetMasterServiceDatetimesMulti } from './dto/get-master-service-datetimes-multi.dto';
 
 @Controller('booking')
 export class BookingController {
@@ -42,6 +44,21 @@ export class BookingController {
     @Get('datetimes')
     async getMasterServiceDatetimes(@Query('masterId') masterId: string, @Query('serviceId') serviceId: string[], @Query('date') date: string): Promise<any> {
         const result =  await this.bookingService.getMasterServiceDatetimes(this._companyId, masterId, serviceId, date || '');
+        return result;
+    }
+
+    // @Get('datetimes-multi')
+    // async getMasterServiceDatetimesMulti(@Query('masters', new ParseArrayPipe({ items: RequestMasterServicesDateTimesDto, separator: ',' })) masters: RequestMasterServicesDateTimesDto[], @Query('date') date?: string): Promise<any> {
+    //     console.log(masters);
+    //     const result =  await this.bookingService.getMasterServiceDatetimesMulti(this._companyId, masters, date);
+    //     return result;
+    // }
+
+    @Post('get-datetimes-multi')
+    @HttpCode(200)
+    async getMasterServiceDatetimesMulti(@Body() body: RequestGetDateTimesDto): Promise<GetMasterServiceDatetimesMulti> {
+        console.log(body.masters);
+        const result =  await this.bookingService.getMasterServiceDatetimesMulti(this._companyId, body.masters, body.date);
         return result;
     }
 

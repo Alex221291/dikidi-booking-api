@@ -3,6 +3,7 @@ import { HttpService} from '@nestjs/axios';
 import { firstValueFrom, lastValueFrom, map, Observable } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import * as qs from 'qs';
+import { RequestGetDateTimesDto } from 'src/booking/dto/request-get-date-times-multi.dto';
 @Injectable()
 export class DikidiService {
     constructor(private readonly httpService: HttpService) {}
@@ -54,11 +55,38 @@ export class DikidiService {
         return data;
     }
 
-    async getDatetimesMulti(companyId: string, masterId: string, serviceId: string, date: string): Promise<any> {
-        const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/ru/mobile/ajax/newrecord/get_datetimes/?company_id=${companyId}&date=${date}&service_id%5B%5D=${serviceId}&master_id=${masterId}`)
-            .pipe(
-                map(response => response.data)));
-        return data;
+    async getDatetimesMulti(companyId: string, masters: {masterId: string, serviceId: string[]}[], date?: string): Promise<any> {
+        // Формируем service_id_list
+        const service_id_list = masters.reduce((acc, master) => {
+            return acc.concat(master.serviceId);
+        }, []);
+    
+        // Формируем service_master_list
+        const service_master_list = masters.reduce((acc, master) => {
+            master.serviceId.forEach(serviceId => {
+            acc[serviceId] = master.masterId;
+            });
+            return acc;
+        }, {});
+    
+        // Параметры запроса
+        const params = {
+            company_id: companyId,
+            type_multi: 'successively',
+            service_id_list: service_id_list,
+            service_master_list: service_master_list,
+            service_id: service_id_list.join(','),
+            date: date,
+            with_first: '1'
+        };
+    
+        const url = 'https://dikidi.ru/ru/mobile/ajax/newrecord/get_datetimes_multi/';
+
+        const response = await lastValueFrom(
+        this.httpService.get(url, { params }).pipe(
+            map(response => response.data)
+        ));
+        return response;
     }
 
     async timeReservation(companyId: string, masterId: string, serviceId: string[], time: string): Promise<any> {
@@ -87,7 +115,7 @@ export class DikidiService {
         return data;
     }
 
-    async check(companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
+    async check(type: string, companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
         const params = {
             company_id: companyId,
             //session: session,
@@ -95,7 +123,7 @@ export class DikidiService {
         };
 
         const formData = new URLSearchParams();
-        formData.append('company', companyId);
+        formData.append('company', type);
         formData.append('type', 'normal');
         //formData.append('session', session);
         formData.append('social_key', '');
@@ -129,7 +157,7 @@ export class DikidiService {
         return response?.data;
     }
 
-    async record(companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
+    async record(type: string, companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
         const params = {
             company_id: companyId,
             //session: session,
@@ -137,7 +165,7 @@ export class DikidiService {
         };
 
         const formData = new URLSearchParams();
-        formData.append('type', 'normal');
+        formData.append('type', type);
         //formData.append('session', session);
         formData.append('shared_id', '0');
         formData.append('phone', phone);

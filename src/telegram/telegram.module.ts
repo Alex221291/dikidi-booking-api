@@ -5,7 +5,7 @@ import { options } from './telegram-config.factory'
 //import { TelegramChatService } from './telegram-chat.service'
 
 @Module({
-  imports: [TelegrafModule.forRootAsync(options())],
+  //imports: [TelegrafModule.forRootAsync(options())],
   providers: [TelegramService], //, TelegramChatService
   //exports: [TelegramChatService],
 })

@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { DikidiService } from 'src/dikidi/dikidi.service';
 import { GetCompanyDto } from './dto/get-company.dto';
 import { GetMasterDto } from './dto/get-master.dto';
-import { GetCategoryWithServiceDto, GetServiceDto } from './dto/get-service.dto';
+import { GetCategoryWithServiceDto} from './dto/get-service.dto';
 import { GetMasterServiceDatetimes } from './dto/get-master-service-datetimes.dto';
 import { GetMasterFullInfoDto } from './dto/get-master-full-info.dto';
+import { RequestMasterServicesDateTimesDto } from './dto/request-get-date-times-multi.dto';
+import { GetMasterServiceDatetimesMulti, MasterInfo, ServiceInfo } from './dto/get-master-service-datetimes-multi.dto';
 
 @Injectable()
 export class BookingService {
@@ -60,7 +62,7 @@ export class BookingService {
                         name: service?.name,
                         image: service?.image,
                         time: service?.time,
-                        price: service?.price,
+                        price: service?.cost,
                     }
                 })
             }
@@ -107,7 +109,7 @@ export class BookingService {
                         name: service?.name,
                         image: service?.image,
                         time: service?.time,
-                        price: service?.price,
+                        price: service?.cost,
                         //dateTrue: serviceDateTimes?.data?.dates_true,
                         //dateNear: serviceDateTimes?.data?.date_near,
                         //times: serviceDateTimes?.data?.times[masterData?.id],
@@ -145,7 +147,7 @@ export class BookingService {
                     name: service?.name,
                     image: service?.icon?.url,
                     time: service?.time,
-                    price: service?.price,
+                    price: service?.cost,
                 }
             })
         };
@@ -160,14 +162,51 @@ export class BookingService {
             image: masterDatetimes?.masters[masterId]?.image,
             serviceName: masterDatetimes?.masters[masterId]?.service_name,
             serviceImage: masterDatetimes?.masters[masterId]?.service_image,
-            price: masterDatetimes?.masters[masterId]?.price,
+            price: masterDatetimes?.masters[masterId]?.cost,
             time: masterDatetimes?.masters[masterId]?.time,
             workData:{
                 dateTrue: masterDatetimes?.dates_true,
                 dateNear: masterDatetimes?.date_near,
                 times: masterDatetimes?.times[masterId],
             }
-        };;
+        };
+    }
+
+    async getMasterServiceDatetimesMulti(companyId: string, masters: RequestMasterServicesDateTimesDto[], date:string): Promise<GetMasterServiceDatetimesMulti> {
+        const dikidiDatetimesMulti =  (await this.dikidiService.getDatetimesMulti(companyId, masters, date))?.data;
+
+        const serviceIdString =  (masters.reduce((acc, master) => {
+            return acc.concat(master.serviceId);
+        }, [])).join(',');
+
+        let result: GetMasterServiceDatetimesMulti = {
+            masterInfo: [],
+            workData: {
+                dateNear: dikidiDatetimesMulti?.service_list[serviceIdString]?.date_near,
+                dateTrue: dikidiDatetimesMulti?.service_list[serviceIdString]?.dates_true?.map(item => item?.day),
+                times: dikidiDatetimesMulti?.service_list[serviceIdString]?.times,
+            }
+        };
+
+        result.masterInfo = masters.map(item => {
+            const serviceInfo: ServiceInfo[] = item.serviceId.map(service => {
+                return {
+                    id: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.service_id,
+                    name: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.service_name,
+                    image: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.service_img,
+                    time: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.time,
+                    price: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.cost,
+                }
+            });
+            return {
+                id: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[item.serviceId[0]]?.id,
+                name: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[item.serviceId[0]]?.username,
+                image: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[item.serviceId[0]]?.image,
+                serviceInfo: serviceInfo,
+            };
+
+        });
+        return result;
     }
 
     async timeReservation(companyId: string, masterId: string, serviceId: string[], time: string): Promise<any> {
@@ -179,7 +218,7 @@ export class BookingService {
         // };
     }
     async check(companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
-        const checkStatus =  (await this.dikidiService.check(companyId, phone, firstName, comment));
+        const checkStatus = await this.dikidiService.check(companyId, phone, firstName, comment);
         console.log(checkStatus);
         return checkStatus == 200 ? true : false;
     }
@@ -201,9 +240,9 @@ export class BookingService {
         if(timeReservation?.error)
             return timeReservation?.message;
 
-        const check = await this.check(companyId, phone, firstName, comment);
+        const check = await this.dikidiService.check('normal', companyId, phone, firstName, comment);;
 
-        const record =  await this.record(companyId, phone, firstName, comment);
+        const record =  await this.dikidiService.record('normal', companyId, phone, firstName, comment);
         console.log(record);
         return record?.error ? record?.message : record;
     }
