@@ -5,8 +5,10 @@ import { GetMasterDto } from './dto/get-master.dto';
 import { GetCategoryWithServiceDto} from './dto/get-service.dto';
 import { GetMasterServiceDatetimes } from './dto/get-master-service-datetimes.dto';
 import { GetMasterFullInfoDto } from './dto/get-master-full-info.dto';
-import { RequestMasterServicesDateTimesDto } from './dto/request-get-date-times-multi.dto';
+import { RequestGetDateTimesDto, RequestMasterServicesDateTimesDto } from './dto/request-get-date-times-multi.dto';
 import { GetMasterServiceDatetimesMulti, MasterInfo, ServiceInfo } from './dto/get-master-service-datetimes-multi.dto';
+import { RequestRecordDto } from './dto/request-post-record.dto';
+import { RequestGetDatesTrueDto } from './dto/request-get-dates-true.dto';
 
 @Injectable()
 export class BookingService {
@@ -209,6 +211,11 @@ export class BookingService {
         return result;
     }
 
+    async getDatesTrue(companyId: string, requestDatesTrue: RequestGetDatesTrueDto): Promise<string[]> {
+        const responce =  await this.dikidiService.getDatesTrue(companyId, requestDatesTrue.masters, requestDatesTrue.dateFrom, requestDatesTrue.dateTo);
+        return responce?.dates_true || [];
+    }
+
     async timeReservation(companyId: string, masterId: string, serviceId: string[], time: string): Promise<any> {
         const reservation =  (await this.dikidiService.timeReservation(companyId, masterId, serviceId, time));
         return reservation;
@@ -235,14 +242,22 @@ export class BookingService {
         return recordInfo;
     }
 
-    async newRecord(companyId: string, masterId: string, serviceId: string[], time: string, phone: string, firstName: string, comment?: string): Promise<any> {
-        const timeReservation = await this.timeReservation(companyId, masterId, serviceId, time);
-        if(timeReservation?.error)
-            return timeReservation?.message;
+    async newRecord(companyId: string, recordInfo: RequestRecordDto): Promise<any> {
+        let recordType = 'normal';
+        if(recordInfo.masters.length == 0 && recordInfo.masters[0].serviceId.length == 0){
+            const timeReservation =  await this.dikidiService.timeReservation(companyId, recordInfo.masters[0].masterId, recordInfo.masters[0].serviceId, recordInfo.time);
+            if(timeReservation?.error)
+                return timeReservation?.message;
+        } else{
+            recordType = 'multi';
+            const timeReservation =  await this.dikidiService.timeReservationMulti(companyId, recordInfo.masters, recordInfo.time);
+            if(timeReservation?.error)
+                return timeReservation?.message;
+        }
 
-        const check = await this.dikidiService.check('normal', companyId, phone, firstName, comment);;
+        const check = await this.dikidiService.check(recordType, companyId, recordInfo.phone, recordInfo.firstName, recordInfo.comment);;
 
-        const record =  await this.dikidiService.record('normal', companyId, phone, firstName, comment);
+        const record =  await this.dikidiService.record(recordType, companyId, recordInfo.phone, recordInfo.firstName, recordInfo.comment);
         console.log(record);
         return record?.error ? record?.message : record;
     }

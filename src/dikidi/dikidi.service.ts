@@ -89,6 +89,38 @@ export class DikidiService {
         return response;
     }
 
+    async getDatesTrue(companyId: string, masters: {masterId: string, serviceId: string[]}[], dateFrom: string, dateTo: string,): Promise<any> {
+        // Формируем service_id_list
+        const serviceIdList = masters.reduce((acc, master) => {
+            return acc.concat(master.serviceId);
+        }, []);
+    
+        // Формируем service_master_list
+        const serviceMasterList = masters.reduce((acc, master) => {
+            master.serviceId.forEach(serviceId => {
+            acc[serviceId] = master.masterId;
+            });
+            return acc;
+        }, {});
+    
+        // Параметры запроса
+        const params = {
+            company_id: companyId,
+            master_id: serviceMasterList,
+            services_id: serviceIdList,
+            date_from: dateFrom,
+            date_to: dateTo
+        };
+    
+        const url = 'https://dikidi.ru/ru/ajax/newrecord/get_dates_true/';
+
+        const response = await lastValueFrom(
+        this.httpService.get(url, { params }).pipe(
+            map(response => response.data)
+        ));
+        return response;
+    }
+
     async timeReservation(companyId: string, masterId: string, serviceId: string[], time: string): Promise<any> {
         const params = {
             company_id: companyId,
@@ -115,6 +147,44 @@ export class DikidiService {
         return data;
     }
 
+    async timeReservationMulti(companyId: string, masters: {masterId: string, serviceId: string[]}[], time: string): Promise<any> {
+
+        // Формируем service_id_list
+        const serviceIdList = masters.reduce((acc, master) => {
+            return acc.concat(master.serviceId);
+        }, []);
+    
+        // Формируем service_master_list
+        const serviceMasterList = masters.reduce((acc, master) => {
+            master.serviceId.forEach(serviceId => {
+            acc[serviceId] = master.masterId;
+            });
+            return acc;
+        }, {});
+
+        const requestData = {
+            service_id_list: serviceIdList,
+            service_master_list: serviceMasterList,
+            company_id: companyId,
+            date: time,
+            type: 'successively'
+        };
+        const formData = this.convertToURLSearchParams(requestData);
+
+        const response = await firstValueFrom(
+            this.httpService.post('https://dikidi.ru/ru/mobile/ajax/newrecord/time_reservation_multi/', formData, {
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Accept': 'application/json, text/javascript, */*; q=0.01',
+                'Accept-Encoding': 'gzip, deflate, br, zstd',
+                'Accept-Language': 'ru,en;q=0.9,be;q=0.8',
+                'Cookie': 'cid=5276c1e7228e24cbddb30090823f7c46376bdf6c~620127; cookieCheckBlock=58c02c388a4a4a6aa9a2e23b0ccf147623384f65~1; _gcl_au=1.1.921161648.1722239347; _ga=GA1.1.1176550732.1722239347; _ym_uid=1722239347150278790; _ym_d=1722239347; tmr_lvid=122e9c49ba431681d367c51703d7898a; tmr_lvidTS=1722239347097; journal-hide-not-work-items=1; owner-journal-select-items-position=false; visible_sidebar_cookie_2=show; owner-schedule-items-order=false; journal-disabled-hint=%5B4%5D; lang=43bb664ecc8b6f42007ce39baebf98030f44b688~ru; _ym_isad=1; domain_sid=3cr88n8b57D3u00COfUNf%3A1724146882951; cookie_name=13cf68484e5c8fd9c1ba5d4b78b079c9f665838f~66c47618b97cd6-09501327; _ga_EDVSHP33JZ=GS1.1.1724151321.13.1.1724151322.59.0.0; _ym_visorc=w; tmr_detect=0%7C1724151329246',  
+            },
+            }),
+          );
+        return response;
+    }
+
     async check(type: string, companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
         const params = {
             company_id: companyId,
@@ -134,7 +204,7 @@ export class DikidiService {
         formData.append('comments', comment || '');
         formData.append('promocode_appointment_id', '');
 
-        const response = await firstValueFrom(
+        const response = await lastValueFrom(
             this.httpService.post('https://dikidi.ru/ru/mobile/newrecord/check/?company=591511&social_key=', formData, {
               headers: {
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -218,5 +288,31 @@ export class DikidiService {
             .pipe(
                 map(response => response.data)));
         return data
+    }
+
+    convertToURLSearchParams(obj: any, namespace?: string): URLSearchParams {
+        const params = new URLSearchParams();
+        for (const property in obj) {
+            if (!obj.hasOwnProperty(property) || obj[property] === undefined) {
+                continue;
+            }
+            const formKey = namespace ? `${namespace}[${property}]` : property;
+            if (obj[property] instanceof Date) {
+                params.append(formKey, obj[property].toISOString());
+            } else if (Array.isArray(obj[property])) {
+                obj[property].forEach((element, index) => {
+                    const tempFormKey = `${formKey}[${index}]`;
+                    params.append(tempFormKey, element);
+                });
+            } else if (typeof obj[property] === 'object') {
+                const nestedParams = this.convertToURLSearchParams(obj[property], formKey);
+                for (const [key, value] of nestedParams.entries()) {
+                    params.append(key, value);
+                }
+            } else {
+                params.append(formKey, obj[property]);
+            }
+        }
+        return params;
     }
 }
