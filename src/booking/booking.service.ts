@@ -212,8 +212,8 @@ export class BookingService {
     }
 
     async getDatesTrue(companyId: string, requestDatesTrue: RequestGetDatesTrueDto): Promise<string[]> {
-        const responce =  await this.dikidiService.getDatesTrue(companyId, requestDatesTrue.masters, requestDatesTrue.dateFrom, requestDatesTrue.dateTo);
-        return responce?.dates_true || [];
+        const response =  await this.dikidiService.getDatesTrue(companyId, requestDatesTrue.masters, requestDatesTrue.dateFrom, requestDatesTrue.dateTo);
+        return response?.dates_true || [];
     }
 
     async timeReservation(companyId: string, masterId: string, serviceId: string[], time: string): Promise<any> {
@@ -225,13 +225,13 @@ export class BookingService {
         // };
     }
     async check(companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
-        const checkStatus = await this.dikidiService.check(companyId, phone, firstName, comment);
-        console.log(checkStatus);
+        const checkStatus = await this.dikidiService.check('normal', companyId, phone, firstName, comment);
+        //console.log(checkStatus);
         return checkStatus == 200 ? true : false;
     }
 
     async record(companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
-        const record =  (await this.dikidiService.record(companyId, phone, firstName, comment));
+        const record =  (await this.dikidiService.record('normal', companyId, phone, firstName, comment));
         console.log(record);
         return record;
     }
@@ -244,13 +244,14 @@ export class BookingService {
 
     async newRecord(companyId: string, recordInfo: RequestRecordDto): Promise<any> {
         let recordType = 'normal';
-        if(recordInfo.masters.length == 0 && recordInfo.masters[0].serviceId.length == 0){
-            const timeReservation =  await this.dikidiService.timeReservation(companyId, recordInfo.masters[0].masterId, recordInfo.masters[0].serviceId, recordInfo.time);
+        let timeReservation;
+        if(recordInfo.masters.length == 1 && recordInfo.masters[0].serviceId.length == 1){
+            timeReservation =  await this.dikidiService.timeReservation(companyId, recordInfo.masters[0].masterId, recordInfo.masters[0].serviceId, recordInfo.time);
             if(timeReservation?.error)
                 return timeReservation?.message;
         } else{
             recordType = 'multi';
-            const timeReservation =  await this.dikidiService.timeReservationMulti(companyId, recordInfo.masters, recordInfo.time);
+            timeReservation =  await this.dikidiService.timeReservationMulti(companyId, recordInfo.masters, recordInfo.time);
             if(timeReservation?.error)
                 return timeReservation?.message;
         }
@@ -259,6 +260,6 @@ export class BookingService {
 
         const record =  await this.dikidiService.record(recordType, companyId, recordInfo.phone, recordInfo.firstName, recordInfo.comment);
         console.log(record);
-        return record?.error ? record?.message : record;
+        return record?.error ? {message: record?.message, timeReservation} : {record, timeReservation};
     }
 }

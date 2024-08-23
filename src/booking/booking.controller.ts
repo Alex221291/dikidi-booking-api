@@ -6,6 +6,7 @@ import { GetCategoryWithServiceDto } from './dto/get-service.dto';
 import { RequestGetDateTimesDto, RequestMasterServicesDateTimesDto } from './dto/request-get-date-times-multi.dto';
 import { GetMasterServiceDatetimesMulti } from './dto/get-master-service-datetimes-multi.dto';
 import { RequestGetDatesTrueDto } from './dto/request-get-dates-true.dto';
+import { RequestRecordDto } from './dto/request-post-record.dto';
 
 @Controller('booking')
 export class BookingController {
@@ -71,11 +72,11 @@ export class BookingController {
         return result;
     }
 
-    // @Post('new-record')
-    // async newRecord(@Query('masterId') masterId: string, @Query('serviceId') serviceId: string[], @Query('time') time: string, @Query('phone') phone: string, @Query('firstName') firstName: string, @Query('comment') comment?: string): Promise<any> {
-    //     const result =  await this.bookingService.newRecord(this._companyId, masterId, serviceId, time, phone, firstName, comment);
-    //     return result;
-    // }
+    @Post('new-record')
+    async newRecord(@Body() body: RequestRecordDto): Promise<any> {
+        const result =  await this.bookingService.newRecord(this._companyId, body);
+        return result;
+    }
 
     @Get('new-record/time-reservation')
     async timeReservation(@Query('masterId') masterId: string, @Query('serviceId') serviceId: string[], @Query('time') time: string): Promise<any> {

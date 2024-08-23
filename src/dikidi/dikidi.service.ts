@@ -138,7 +138,7 @@ export class DikidiService {
                   'Accept': 'application/json, text/javascript, */*; q=0.01',
                   'Accept-Encoding': 'gzip, deflate, br, zstd',
                   'Accept-Language': 'ru,en;q=0.9,be;q=0.8',
-                  'Cookie': 'cid=5276c1e7228e24cbddb30090823f7c46376bdf6c~620127; cookieCheckBlock=58c02c388a4a4a6aa9a2e23b0ccf147623384f65~1; _gcl_au=1.1.921161648.1722239347; _ga=GA1.1.1176550732.1722239347; _ym_uid=1722239347150278790; _ym_d=1722239347; tmr_lvid=122e9c49ba431681d367c51703d7898a; tmr_lvidTS=1722239347097; journal-hide-not-work-items=1; owner-journal-select-items-position=false; visible_sidebar_cookie_2=show; owner-schedule-items-order=false; journal-disabled-hint=%5B4%5D; lang=43bb664ecc8b6f42007ce39baebf98030f44b688~ru; _ym_isad=1; domain_sid=3cr88n8b57D3u00COfUNf%3A1724146882951; cookie_name=13cf68484e5c8fd9c1ba5d4b78b079c9f665838f~66c47618b97cd6-09501327; _ga_EDVSHP33JZ=GS1.1.1724151321.13.1.1724151322.59.0.0; _ym_visorc=w; tmr_detect=0%7C1724151329246',  
+                  'Cookie': '_gcl_au=1.1.921161648.1722239347; _ga=GA1.1.1176550732.1722239347; _ym_uid=1722239347150278790; _ym_d=1722239347; tmr_lvid=122e9c49ba431681d367c51703d7898a; tmr_lvidTS=1722239347097; journal-hide-not-work-items=1; owner-journal-select-items-position=false; visible_sidebar_cookie_2=show; owner-schedule-items-order=false; token=1b62cea52d3a8d631fdc643737430afe0d689253~ca674aa828da00b60dc7b3efeb6a711b396a8aa2; cookie_name=b10c953aa551d6ffc81967b6f82d16ac07c01422~ca674aa828da00b60dc7b3efeb6a711b396a8aa2; domain_sid=3cr88n8b57D3u00COfUNf%3A1724313471925; lang=43bb664ecc8b6f42007ce39baebf98030f44b688~ru; _ym_isad=1; cid=3b90e5e4cb16a088335a5c150d88728cf3bb3479~625144; cookieCheckBlock=58c02c388a4a4a6aa9a2e23b0ccf147623384f65~1; _ga_EDVSHP33JZ=GS1.1.1724397982.15.0.1724397982.60.0.0; _ym_visorc=w; tmr_detect=0%7C1724397988259'
                 },
             }
         )
@@ -173,13 +173,13 @@ export class DikidiService {
 
         const response = await firstValueFrom(
             this.httpService.post('https://dikidi.ru/ru/mobile/ajax/newrecord/time_reservation_multi/', formData, {
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
-                'Accept-Encoding': 'gzip, deflate, br, zstd',
-                'Accept-Language': 'ru,en;q=0.9,be;q=0.8',
-                'Cookie': 'cid=5276c1e7228e24cbddb30090823f7c46376bdf6c~620127; cookieCheckBlock=58c02c388a4a4a6aa9a2e23b0ccf147623384f65~1; _gcl_au=1.1.921161648.1722239347; _ga=GA1.1.1176550732.1722239347; _ym_uid=1722239347150278790; _ym_d=1722239347; tmr_lvid=122e9c49ba431681d367c51703d7898a; tmr_lvidTS=1722239347097; journal-hide-not-work-items=1; owner-journal-select-items-position=false; visible_sidebar_cookie_2=show; owner-schedule-items-order=false; journal-disabled-hint=%5B4%5D; lang=43bb664ecc8b6f42007ce39baebf98030f44b688~ru; _ym_isad=1; domain_sid=3cr88n8b57D3u00COfUNf%3A1724146882951; cookie_name=13cf68484e5c8fd9c1ba5d4b78b079c9f665838f~66c47618b97cd6-09501327; _ga_EDVSHP33JZ=GS1.1.1724151321.13.1.1724151322.59.0.0; _ym_visorc=w; tmr_detect=0%7C1724151329246',  
-            },
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    'Accept': 'application/json, text/javascript, */*; q=0.01',
+                    'Accept-Encoding': 'gzip, deflate, br, zstd',
+                    'Accept-Language': 'ru,en;q=0.9,be;q=0.8',
+                    'Cookie': '_gcl_au=1.1.921161648.1722239347; _ga=GA1.1.1176550732.1722239347; _ym_uid=1722239347150278790; _ym_d=1722239347; tmr_lvid=122e9c49ba431681d367c51703d7898a; tmr_lvidTS=1722239347097; journal-hide-not-work-items=1; owner-journal-select-items-position=false; visible_sidebar_cookie_2=show; owner-schedule-items-order=false; token=1b62cea52d3a8d631fdc643737430afe0d689253~ca674aa828da00b60dc7b3efeb6a711b396a8aa2; cookie_name=b10c953aa551d6ffc81967b6f82d16ac07c01422~ca674aa828da00b60dc7b3efeb6a711b396a8aa2; domain_sid=3cr88n8b57D3u00COfUNf%3A1724313471925; lang=43bb664ecc8b6f42007ce39baebf98030f44b688~ru; _ym_isad=1; cid=3b90e5e4cb16a088335a5c150d88728cf3bb3479~625144; cookieCheckBlock=58c02c388a4a4a6aa9a2e23b0ccf147623384f65~1; _ga_EDVSHP33JZ=GS1.1.1724397982.15.0.1724397982.60.0.0; _ym_visorc=w; tmr_detect=0%7C1724397988259'
+                  },
             }),
           );
         return response;
@@ -192,7 +192,7 @@ export class DikidiService {
             social_key: ''
         };
 
-        const formData = new URLSearchParams();
+        const formData = new FormData();
         formData.append('company', type);
         formData.append('type', 'normal');
         //formData.append('session', session);
@@ -206,13 +206,13 @@ export class DikidiService {
 
         const response = await lastValueFrom(
             this.httpService.post('https://dikidi.ru/ru/mobile/newrecord/check/?company=591511&social_key=', formData, {
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
-                'Accept-Encoding': 'gzip, deflate, br, zstd',
-                'Accept-Language': 'ru,en;q=0.9,be;q=0.8',
-                'Cookie': 'cid=5276c1e7228e24cbddb30090823f7c46376bdf6c~620127; cookieCheckBlock=58c02c388a4a4a6aa9a2e23b0ccf147623384f65~1; _gcl_au=1.1.921161648.1722239347; _ga=GA1.1.1176550732.1722239347; _ym_uid=1722239347150278790; _ym_d=1722239347; tmr_lvid=122e9c49ba431681d367c51703d7898a; tmr_lvidTS=1722239347097; journal-hide-not-work-items=1; owner-journal-select-items-position=false; visible_sidebar_cookie_2=show; owner-schedule-items-order=false; journal-disabled-hint=%5B4%5D; lang=43bb664ecc8b6f42007ce39baebf98030f44b688~ru; _ym_isad=1; domain_sid=3cr88n8b57D3u00COfUNf%3A1724146882951; cookie_name=13cf68484e5c8fd9c1ba5d4b78b079c9f665838f~66c47618b97cd6-09501327; _ga_EDVSHP33JZ=GS1.1.1724151321.13.1.1724151322.59.0.0; _ym_visorc=w; tmr_detect=0%7C1724151329246',  
-            },
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    'Accept': 'application/json, text/javascript, */*; q=0.01',
+                    'Accept-Encoding': 'gzip, deflate, br, zstd',
+                    'Accept-Language': 'ru,en;q=0.9,be;q=0.8',
+                    'Cookie': '_gcl_au=1.1.921161648.1722239347; _ga=GA1.1.1176550732.1722239347; _ym_uid=1722239347150278790; _ym_d=1722239347; tmr_lvid=122e9c49ba431681d367c51703d7898a; tmr_lvidTS=1722239347097; journal-hide-not-work-items=1; owner-journal-select-items-position=false; visible_sidebar_cookie_2=show; owner-schedule-items-order=false; token=1b62cea52d3a8d631fdc643737430afe0d689253~ca674aa828da00b60dc7b3efeb6a711b396a8aa2; cookie_name=b10c953aa551d6ffc81967b6f82d16ac07c01422~ca674aa828da00b60dc7b3efeb6a711b396a8aa2; domain_sid=3cr88n8b57D3u00COfUNf%3A1724313471925; lang=43bb664ecc8b6f42007ce39baebf98030f44b688~ru; _ym_isad=1; cid=3b90e5e4cb16a088335a5c150d88728cf3bb3479~625144; cookieCheckBlock=58c02c388a4a4a6aa9a2e23b0ccf147623384f65~1; _ga_EDVSHP33JZ=GS1.1.1724397982.15.0.1724397982.60.0.0; _ym_visorc=w; tmr_detect=0%7C1724397988259'
+                  },
             }),
           );
         // const data = lastValueFrom(this.httpService.post(`https://dikidi.ru/ru/mobile/newrecord/check/`,
@@ -262,13 +262,13 @@ export class DikidiService {
         // return data;
         const response = await firstValueFrom(
             this.httpService.post('https://dikidi.ru/ru/ajax/newrecord/record/?company_id=591511&social_key=', formData, {
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
-                'Accept-Encoding': 'gzip, deflate, br, zstd',
-                'Accept-Language': 'ru,en;q=0.9,be;q=0.8',
-                'Cookie': 'cid=5276c1e7228e24cbddb30090823f7c46376bdf6c~620127; cookieCheckBlock=58c02c388a4a4a6aa9a2e23b0ccf147623384f65~1; _gcl_au=1.1.921161648.1722239347; _ga=GA1.1.1176550732.1722239347; _ym_uid=1722239347150278790; _ym_d=1722239347; tmr_lvid=122e9c49ba431681d367c51703d7898a; tmr_lvidTS=1722239347097; journal-hide-not-work-items=1; owner-journal-select-items-position=false; visible_sidebar_cookie_2=show; owner-schedule-items-order=false; journal-disabled-hint=%5B4%5D; lang=43bb664ecc8b6f42007ce39baebf98030f44b688~ru; _ym_isad=1; domain_sid=3cr88n8b57D3u00COfUNf%3A1724146882951; cookie_name=13cf68484e5c8fd9c1ba5d4b78b079c9f665838f~66c47618b97cd6-09501327; _ga_EDVSHP33JZ=GS1.1.1724151321.13.1.1724151322.59.0.0; _ym_visorc=w; tmr_detect=0%7C1724151329246',  
-              },
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    'Accept': 'application/json, text/javascript, */*; q=0.01',
+                    'Accept-Encoding': 'gzip, deflate, br, zstd',
+                    'Accept-Language': 'ru,en;q=0.9,be;q=0.8',
+                    'Cookie': '_gcl_au=1.1.921161648.1722239347; _ga=GA1.1.1176550732.1722239347; _ym_uid=1722239347150278790; _ym_d=1722239347; tmr_lvid=122e9c49ba431681d367c51703d7898a; tmr_lvidTS=1722239347097; journal-hide-not-work-items=1; owner-journal-select-items-position=false; visible_sidebar_cookie_2=show; owner-schedule-items-order=false; token=1b62cea52d3a8d631fdc643737430afe0d689253~ca674aa828da00b60dc7b3efeb6a711b396a8aa2; cookie_name=b10c953aa551d6ffc81967b6f82d16ac07c01422~ca674aa828da00b60dc7b3efeb6a711b396a8aa2; domain_sid=3cr88n8b57D3u00COfUNf%3A1724313471925; lang=43bb664ecc8b6f42007ce39baebf98030f44b688~ru; _ym_isad=1; cid=3b90e5e4cb16a088335a5c150d88728cf3bb3479~625144; cookieCheckBlock=58c02c388a4a4a6aa9a2e23b0ccf147623384f65~1; _ga_EDVSHP33JZ=GS1.1.1724397982.15.0.1724397982.60.0.0; _ym_visorc=w; tmr_detect=0%7C1724397988259'
+                  },
             }),
           );
       
