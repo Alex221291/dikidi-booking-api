@@ -6,7 +6,7 @@ export interface GetMasterServiceDatetimesMulti {
 export interface WorkDataInfo {
     dateTrue?: string[];
     dateNear?: string;
-    times?: string[][];
+    times?: string[];
 }
 
 export interface ServiceInfo {

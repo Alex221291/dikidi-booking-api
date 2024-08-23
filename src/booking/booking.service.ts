@@ -184,7 +184,7 @@ export class BookingService {
             workData: {
                 dateNear: dikidiDatetimesMulti?.service_list[serviceIdString]?.date_near,
                 dateTrue: dikidiDatetimesMulti?.service_list[serviceIdString]?.dates_true?.map(item => item?.day),
-                times: dikidiDatetimesMulti?.service_list[serviceIdString]?.times,
+                times: dikidiDatetimesMulti?.service_list[serviceIdString]?.times.flat(),
             }
         };
 
