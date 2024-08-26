@@ -9,6 +9,7 @@ import { RequestGetDateTimesDto, RequestMasterServicesDateTimesDto } from './dto
 import { GetMasterServiceDatetimesMulti, MasterInfo, ServiceInfo } from './dto/get-master-service-datetimes-multi.dto';
 import { RequestRecordDto } from './dto/request-post-record.dto';
 import { RequestGetDatesTrueDto } from './dto/request-get-dates-true.dto';
+import { ResponseNewRecordDto } from './dto/response-new-record.dto';
 
 @Injectable()
 export class BookingService {
@@ -224,6 +225,16 @@ export class BookingService {
         //     durationString: reservation?.duration_string,
         // };
     }
+
+    async timeReservationMulti(companyId: string, recordInfo: RequestRecordDto): Promise<any> {
+        const reservation =  await this.dikidiService.timeReservationMulti(companyId, recordInfo.masters, recordInfo.time);
+        return reservation;
+        // return {
+        //     recordId: reservation?.record_id,
+        //     durationString: reservation?.duration_string,
+        // };
+    }
+
     async check(companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
         const checkStatus = await this.dikidiService.check('normal', companyId, phone, firstName, comment);
         //console.log(checkStatus);
@@ -248,18 +259,53 @@ export class BookingService {
         if(recordInfo.masters.length == 1 && recordInfo.masters[0].serviceId.length == 1){
             timeReservation =  await this.dikidiService.timeReservation(companyId, recordInfo.masters[0].masterId, recordInfo.masters[0].serviceId, recordInfo.time);
             if(timeReservation?.error)
-                return timeReservation?.message;
+                return {error: timeReservation?.message};
         } else{
             recordType = 'multi';
             timeReservation =  await this.dikidiService.timeReservationMulti(companyId, recordInfo.masters, recordInfo.time);
-            if(timeReservation?.error)
-                return timeReservation?.message;
+            if(timeReservation?.error?.code !== 0)
+                return {error: timeReservation.error?.message};
         }
 
         const check = await this.dikidiService.check(recordType, companyId, recordInfo.phone, recordInfo.firstName, recordInfo.comment);;
 
         const record =  await this.dikidiService.record(recordType, companyId, recordInfo.phone, recordInfo.firstName, recordInfo.comment);
-        console.log(record);
-        return record?.error ? {message: record?.message, timeReservation} : {record, timeReservation};
+
+        if(record?.error)
+            return {error: record?.message};
+
+        const recordData : ResponseNewRecordDto[] = record?.bookings?.map(item => {
+            const data: ResponseNewRecordDto = {
+                id: item?.id,
+                time: item?.time,
+                timeTo: item?.time_to,
+                price: item?.cost,
+                duration: item?.duration,
+                durationString: item?.duration_string,
+                currency: {
+                    id: item?.currency?.id,
+                    title: item?.currency?.title,
+                    abbr: item?.currency?.abbr,
+                    iso: item?.currency?.iso,
+                },
+                master: {
+                    id: item?.employees[0]?.id,
+                    name: item?.employees[0]?.username,
+                    image: item?.employees[0]?.image,
+                },
+                services: item?.services?.map(service => {
+                    return {
+                        id: service?.id,
+                        name: service?.name,
+                        price: service?.cost,
+                        duration: service?.duration,
+                        durationString: service?.duration_string,
+                        image: service?.icon?.value,
+                    }
+                })
+            } 
+            return data;
+        })
+        return { recordData, timeReservation};
     }
 }

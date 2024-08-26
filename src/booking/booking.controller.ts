@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, ParseArrayPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, ParseArrayPipe, Post, Query } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { GetCompanyDto } from './dto/get-company.dto';
 import { GetMasterDto } from './dto/get-master.dto';
@@ -75,6 +75,10 @@ export class BookingController {
     @Post('new-record')
     async newRecord(@Body() body: RequestRecordDto): Promise<any> {
         const result =  await this.bookingService.newRecord(this._companyId, body);
+        console.log(result?.error)
+        if (result?.error) {
+            throw new HttpException(result, HttpStatus.BAD_REQUEST);
+        }
         return result;
     }
 
