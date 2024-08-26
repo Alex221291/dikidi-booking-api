@@ -3,13 +3,15 @@ import { DikidiService } from 'src/dikidi/dikidi.service';
 import { GetCompanyDto } from './dto/get-company.dto';
 import { GetMasterDto } from './dto/get-master.dto';
 import { GetCategoryWithServiceDto} from './dto/get-service.dto';
-import { GetMasterServiceDatetimes } from './dto/get-master-service-datetimes.dto';
+import { GetMasterServiceDatetimes, MasterDatetimesInfo } from './dto/get-master-service-datetimes.dto';
 import { GetMasterFullInfoDto } from './dto/get-master-full-info.dto';
-import { RequestGetDateTimesDto, RequestMasterServicesDateTimesDto } from './dto/request-get-date-times-multi.dto';
+import { RequestMasterServicesDateTimesDto } from './dto/request-get-date-times-multi.dto';
 import { GetMasterServiceDatetimesMulti, MasterInfo, ServiceInfo } from './dto/get-master-service-datetimes-multi.dto';
 import { RequestRecordDto } from './dto/request-post-record.dto';
 import { RequestGetDatesTrueDto } from './dto/request-get-dates-true.dto';
 import { ResponseNewRecordDto } from './dto/response-new-record.dto';
+import { GetMastersMultiDto, MasterMultiInfo } from './dto/get-master-multi.dto';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class BookingService {
@@ -82,7 +84,6 @@ export class BookingService {
         const masterIds = data?.masters_order;
 
         const masters =  Promise.all(masterIds?.map(async item => {
-            await this.delay(1000);
             const masterData = (await this.dikidiService.getMaster(companyId, item))?.data;
             console.log(masterData.id);
             const master: GetMasterFullInfoDto = {
@@ -124,6 +125,31 @@ export class BookingService {
         return masters;
     }
 
+    async getMastersMulti(companyId: string, serviceId: string[]): Promise<any> {
+        const data =  (await this.dikidiService.getMastersMulti(companyId, serviceId))?.data;
+        return serviceId.map(item => {
+            const mastersData: MasterMultiInfo[] = [];
+            for (let key in data[item]?.masters) {
+                mastersData.push({
+                    masterId: key,
+                    masterName: data[item]?.masters[key]?.master_name,
+                    masterImage: data[item]?.masters[key]?.master_img,
+                    serviceName: data[item]?.masters[key]?.service_name,
+                    serviceImage: data[item]?.masters[key]?.service_img,
+                    time: data[item]?.masters[key]?.time,
+                    cost: data[item]?.masters[key]?.cost,
+                    currency: data[item]?.masters[key]?.currency?.abbr
+                });
+            }
+            
+            const serviceData: GetMastersMultiDto = {
+                serviceId: data[item]?.service_id,
+                masters: mastersData
+            }
+            return serviceData;
+        });
+    }
+
     async getMasterFullInfo(companyId: string, masterId: string): Promise<GetMasterFullInfoDto | null> {
         const masterData = (await this.dikidiService.getMaster(companyId, masterId))?.data;
         const master: GetMasterFullInfoDto = {
@@ -157,21 +183,32 @@ export class BookingService {
         return master;
     }
 
-    async getMasterServiceDatetimes(companyId: string, masterId: string, serviceId: string[], date: string): Promise<GetMasterServiceDatetimes> {
-        const masterDatetimes =  (await this.dikidiService.getDatetimes(companyId, masterId, serviceId[0], date))?.data;
+    async getMasterServiceDatetimes(companyId: string, serviceId: string, date: string, masterId?: string): Promise<GetMasterServiceDatetimes> {
+        const data =  (await this.dikidiService.getDatetimes(companyId, masterId, serviceId, date))?.data;
+        const mastersData: MasterDatetimesInfo[] = [];
+            for (let key in data?.masters) {
+                mastersData.push({
+                    masterId: data?.masters[key]?.id,
+                    masterName: data?.masters[key]?.username,
+                    masterImage: data?.masters[key]?.image,
+                    serviceName: data?.masters[key]?.service_name,
+                    serviceImage: data?.masters[key]?.service_img,
+                    time: data?.masters[key]?.time,
+                    price: data?.masters[key]?.cost,
+                    currency: data?.currency?.currency_abbr,
+                    times: data?.times[key]?.map(item => {
+                        const timeFormat= dayjs(item).format('HH:mm');
+                        return timeFormat;
+                    }),
+                });}
         return {
-            id: masterDatetimes?.masters[masterId]?.id,
-            name: masterDatetimes?.masters[masterId]?.username,
-            image: masterDatetimes?.masters[masterId]?.image,
-            serviceName: masterDatetimes?.masters[masterId]?.service_name,
-            serviceImage: masterDatetimes?.masters[masterId]?.service_image,
-            price: masterDatetimes?.masters[masterId]?.cost,
-            time: masterDatetimes?.masters[masterId]?.time,
+            serviceId: serviceId,
+            masters: mastersData,
             workData:{
-                dateTrue: masterDatetimes?.dates_true,
-                dateNear: masterDatetimes?.date_near,
-                times: masterDatetimes?.times[masterId],
+                dateNear: data?.date_near,
+                dateTrue: data?.dates_true,
             }
+
         };
     }
 
@@ -220,24 +257,15 @@ export class BookingService {
     async timeReservation(companyId: string, masterId: string, serviceId: string[], time: string): Promise<any> {
         const reservation =  (await this.dikidiService.timeReservation(companyId, masterId, serviceId, time));
         return reservation;
-        // return {
-        //     recordId: reservation?.record_id,
-        //     durationString: reservation?.duration_string,
-        // };
     }
 
     async timeReservationMulti(companyId: string, recordInfo: RequestRecordDto): Promise<any> {
         const reservation =  await this.dikidiService.timeReservationMulti(companyId, recordInfo.masters, recordInfo.time);
         return reservation;
-        // return {
-        //     recordId: reservation?.record_id,
-        //     durationString: reservation?.duration_string,
-        // };
     }
 
     async check(companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
         const checkStatus = await this.dikidiService.check('normal', companyId, phone, firstName, comment);
-        //console.log(checkStatus);
         return checkStatus == 200 ? true : false;
     }
 

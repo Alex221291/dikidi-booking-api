@@ -27,6 +27,21 @@ export class DikidiService {
         return data;
     }
 
+    async getMastersMulti(companyId: string, serviceId: string[]): Promise<any> {
+        const params = {
+            company_id: companyId,
+            service_id_list: serviceId,
+        };
+    
+        const url = 'https://dikidi.ru/ru/mobile/ajax/newrecord/get_masters_multi/';
+
+        const response = await lastValueFrom(
+        this.httpService.get(url, { params }).pipe(
+            map(response => response.data)
+        ));
+        return response;
+    }
+
     async getServices(companyId: string): Promise<any> {
         const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/mobile/ajax/newrecord/company_services/?lang=ru&array=1&company=${companyId}&master=&share=`)
             .pipe(

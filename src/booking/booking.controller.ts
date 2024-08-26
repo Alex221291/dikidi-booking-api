@@ -33,10 +33,11 @@ export class BookingController {
         return this.bookingService.getMasterFullInfo(this._companyId, masterId);
     }
 
-    // @Get('masters/full-info')
-    // async getMastersFullInfo(@Query('companyId') companyId: number): Promise<any> {
-    //     return await this.bookingService.getMastersFullInfo(companyId);
-    // }
+    @Get('get-masters-multi')
+    async getMastersMulti(@Query('serviceId') serviceId: string[]): Promise<any> {
+        const result =  await this.bookingService.getMastersMulti(this._companyId, serviceId);
+        return result;
+    }
 
     @Get('services')
     async getServices(): Promise<GetCategoryWithServiceDto> {
@@ -44,8 +45,8 @@ export class BookingController {
     }
 
     @Get('datetimes')
-    async getMasterServiceDatetimes(@Query('masterId') masterId: string, @Query('serviceId') serviceId: string[], @Query('date') date: string): Promise<any> {
-        const result =  await this.bookingService.getMasterServiceDatetimes(this._companyId, masterId, serviceId, date || '');
+    async getMasterServiceDatetimes(@Query('serviceId') serviceId: string, @Query('date') date?: string, @Query('masterId') masterId?: string): Promise<any> {
+        const result =  await this.bookingService.getMasterServiceDatetimes(this._companyId, serviceId, date || '', masterId);
         return result;
     }
 

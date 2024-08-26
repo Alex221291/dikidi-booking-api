@@ -1,17 +1,23 @@
 export interface GetMasterServiceDatetimes {
-    id?: string;
-    name?: string;
-    image?: string;
+    serviceId?: string;
+    masters?: MasterDatetimesInfo[];
+    workData?: WorkData;
+}
+
+export interface MasterDatetimesInfo {
+    masterId?: string;
+    masterName?: string;
+    masterImage?: string;
     serviceName?: string;
     serviceImage?: string;
-    time?: string;
     price?: string;
-    workData?: WorkData;
+    time?: string;
+    currency?: string;
+    times?: string[];
 }
 
 export interface WorkData {
     dateTrue?: string[];
     dateNear?: string;
-    times?: string[];
 }
 
