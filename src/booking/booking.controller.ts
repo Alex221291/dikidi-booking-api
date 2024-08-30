@@ -48,8 +48,8 @@ export class BookingController {
       
 
 
-    @Roles('admin')
-    @UseGuards(JwtAuthGuard, RolesGuard)
+    //@Roles('admin')
+    //@UseGuards(JwtAuthGuard, RolesGuard)
     @Get('company')
     async getCompany(): Promise<GetCompanyDto | null> {
         return await this.bookingService.getCompany(this._companyId);
