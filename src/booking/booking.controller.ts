@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, ParseArrayPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, ParseArrayPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { GetCompanyDto } from './dto/get-company.dto';
 import { GetMasterDto } from './dto/get-master.dto';
@@ -7,6 +7,9 @@ import { RequestGetDateTimesDto, RequestMasterServicesDateTimesDto } from './dto
 import { GetMasterServiceDatetimesMulti } from './dto/get-master-service-datetimes-multi.dto';
 import { RequestGetDatesTrueDto } from './dto/request-get-dates-true.dto';
 import { RequestRecordDto } from './dto/request-post-record.dto';
+import { Roles } from 'src/auth/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('booking')
 export class BookingController {
@@ -17,9 +20,38 @@ export class BookingController {
         this._companyId = process.env.COMPANY_ID;
       }
 
+      //@Roles('admin')
+      //@UseGuards(JwtAuthGuard, RolesGuard)
+      @Get('cookie')
+      async getCookie(): Promise<any> {
+          let headers = {};
+          // Отправляем запрос к dikidi.ru с фронтенда
+          await fetch('https://dikidi.ru/ru/mobile/ajax/newrecord/project_options/?social_key=&company=591511', {
+              method: 'GET',
+              credentials: 'include' // Включает куки в запрос
+          })
+          .then(response => {
+              for (let pair of response.headers.entries()) {
+                  headers[pair[0]] = pair[1];
+              }
+              return response.json();
+          })
+          .then(data => {
+              // Обработка данных
+          })
+          .catch(error => {
+              console.error('Error:', error);
+          });
+      
+          return headers['set-cookie'];
+      }
+      
+
+
+    @Roles('admin')
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Get('company')
     async getCompany(): Promise<GetCompanyDto | null> {
-        console.log(this._companyId);
         return await this.bookingService.getCompany(this._companyId);
     }
 
@@ -83,11 +115,11 @@ export class BookingController {
         return result;
     }
 
-    @Get('new-record/time-reservation')
-    async timeReservation(@Query('masterId') masterId: string, @Query('serviceId') serviceId: string[], @Query('time') time: string): Promise<any> {
-        const result =  await this.bookingService.timeReservation(this._companyId, masterId, serviceId, time);
-        return result;
-    }
+    // @Get('new-record/time-reservation')
+    // async timeReservation(@Query('masterId') masterId: string, @Query('serviceId') serviceId: string[], @Query('time') time: string): Promise<any> {
+    //     const result =  await this.bookingService.timeReservation(this._companyId, masterId, serviceId, time);
+    //     return result;
+    // }
 
     @Post('new-record/check')
     async check(@Query('phone') phone: string, @Query('firstName') firstName: string, @Query('comment') comment?: string): Promise<any> {

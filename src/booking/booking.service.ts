@@ -254,19 +254,19 @@ export class BookingService {
         return response?.dates_true || [];
     }
 
-    async timeReservation(companyId: string, masterId: string, serviceId: string[], time: string): Promise<any> {
-        const reservation =  (await this.dikidiService.timeReservation(companyId, masterId, serviceId, time));
-        return reservation;
-    }
+    // async timeReservation(companyId: string, masterId: string, serviceId: string[], time: string): Promise<any> {
+    //     const reservation =  (await this.dikidiService.timeReservation(companyId, masterId, serviceId, time));
+    //     return reservation;
+    // }
 
-    async timeReservationMulti(companyId: string, recordInfo: RequestRecordDto): Promise<any> {
-        const reservation =  await this.dikidiService.timeReservationMulti(companyId, recordInfo.masters, recordInfo.time);
-        return reservation;
-    }
+    // async timeReservationMulti(companyId: string, recordInfo: RequestRecordDto): Promise<any> {
+    //     const reservation =  await this.dikidiService.timeReservationMulti(companyId, recordInfo.masters, recordInfo.time);
+    //     return reservation;
+    // }
 
     async check(companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
         const checkStatus = await this.dikidiService.check('normal', companyId, phone, firstName, comment);
-        return checkStatus == 200 ? true : false;
+        return checkStatus['set-cookie'];// == 200 ? true : false;
     }
 
     async record(companyId: string, phone: string, firstName: string, comment?: string): Promise<any> {
@@ -284,20 +284,22 @@ export class BookingService {
     async newRecord(companyId: string, recordInfo: RequestRecordDto): Promise<any> {
         let recordType = 'normal';
         let timeReservation;
+        const cookieName = await this.dikidiService.getCookie();
+        const cookie = process.env.COOKIE + cookieName; 
         if(recordInfo.masters.length == 1 && recordInfo.masters[0].serviceId.length == 1){
-            timeReservation =  await this.dikidiService.timeReservation(companyId, recordInfo.masters[0].masterId, recordInfo.masters[0].serviceId, recordInfo.time);
+            timeReservation =  await this.dikidiService.timeReservation(cookie, companyId, recordInfo.masters[0].masterId, recordInfo.masters[0].serviceId, recordInfo.time);
             if(timeReservation?.error)
                 return {error: timeReservation?.message};
         } else{
             recordType = 'multi';
-            timeReservation =  await this.dikidiService.timeReservationMulti(companyId, recordInfo.masters, recordInfo.time);
+            timeReservation =  await this.dikidiService.timeReservationMulti(cookie, companyId, recordInfo.masters, recordInfo.time);
             if(timeReservation?.error?.code !== 0)
                 return {error: timeReservation.error?.message};
         }
 
-        const check = await this.dikidiService.check(recordType, companyId, recordInfo.phone, recordInfo.firstName, recordInfo.comment);;
+        const check = await this.dikidiService.check(cookie, recordType, companyId, recordInfo.phone, recordInfo.firstName, recordInfo.comment);;
 
-        const record =  await this.dikidiService.record(recordType, companyId, recordInfo.phone, recordInfo.firstName, recordInfo.comment);
+        const record =  await this.dikidiService.record(cookie, recordType, companyId, recordInfo.phone, recordInfo.firstName, recordInfo.comment);
 
         if(record?.error)
             return {error: record?.message};
