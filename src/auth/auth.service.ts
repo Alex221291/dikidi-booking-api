@@ -20,10 +20,11 @@ export class AuthService {
       let currentSalon;
       for (let item of salons) {
         try{
+          console.log(data)
           validate(data.initDataRaw, item.tgToken, {expiresIn: 36000000000});
           currentSalon = item;
         } catch (e) {
-          console.log(e.message)
+          console.log(e)
           continue;
         }
       }

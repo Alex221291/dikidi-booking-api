@@ -1,5 +1,5 @@
 export class RequestAuthDto {
-    initDataRaw: string;
+    initDataRaw: any;
     user: UserInitData;
 }
 
