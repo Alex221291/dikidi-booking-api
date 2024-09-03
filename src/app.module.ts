@@ -6,9 +6,13 @@ import { Module } from '@nestjs/common';
 import { TelegramModule } from './telegram/telegram.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { SalonModule } from './salon/salon.module';
+import { ClientModule } from './client/client.module';
+import { StaffModule } from './staff/staff.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), BookingModule, DikidiModule, TelegramModule, AuthModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), BookingModule, DikidiModule, TelegramModule, AuthModule, PrismaModule, SalonModule, ClientModule, StaffModule],
   controllers: [AppController],
   providers: [AppService],
 })
