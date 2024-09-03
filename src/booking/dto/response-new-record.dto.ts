@@ -9,7 +9,7 @@ export interface ResponseNewRecordDto {
     durationString?: string;
     currency?: Currency;
     master?: MasterRecordInfo;
-    services?: ServiceRecordInfo;
+    services?: ServiceRecordInfo[];
 }
 
 export interface MasterRecordInfo {

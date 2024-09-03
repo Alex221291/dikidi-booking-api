@@ -16,6 +16,14 @@ import { ClientService } from 'src/client/client.service';
 import { StaffService } from 'src/staff/staff.service';
 import { TelegramChatService } from 'src/telegram/telegram-chat.service';
 import { SalonService } from 'src/salon/salon.service';
+import * as dayjs from 'dayjs';
+import * as localizedFormat from 'dayjs/plugin/localizedFormat';
+import 'dayjs/locale/ru';
+
+dayjs.extend(localizedFormat);
+
+// Устанавливаем русскую локаль глобально
+//dayjs.locale('ru');
 
 @Controller('booking')
 export class BookingController {
@@ -140,15 +148,28 @@ export class BookingController {
         {
             // получить chatId клиента - отправить сообщение
             const clientUser = await this.clientService.getClientUser(user.userId, clientStaffId);
-            const clientText = `Вы записались - ${result?.recordData[0]?.master?.name}`;
-            await this.telegramCharService.sendMessage(salon.tgToken, clientUser.tgChatId.toString(), clientText);
-            
-            // получить chatId мастера - отправить сообщение
+            for(const item of result){
+                const clientText = `Вы записались!
+Онлайн-запись является равнозначной записи по телефону и не требует подтверждения
+
+мастер - ${item.master.name}
+${await this.dateFormat(item?.time, item?.timeTo)}
+
+${item?.services?.map(record => record.name).join('\n')}
+
+${item?.price} ${item?.currency?.abbr}`;
+
+                await this.telegramCharService.sendMessage(salon.tgToken, clientUser.tgChatId.toString(), clientText);
+                // мастеру отослать
+                // получить chatId мастера - отправить сообщение
             // for(const item of result){
             //     const masterUser = await this.staffService.getMasterUser(item.masterDta.id);
             // }
             
             // получить chatIds администратора - отправить сообщения
+                // администраторам отослать
+            }
+            
         }
         return result;
     }
@@ -178,5 +199,13 @@ export class BookingController {
     async recordsInfo(@User() user: UserPayloadDto, @Query('recordId') recordId: string[]): Promise<any> {
         const result =  await this.bookingService.recordInfo(user.dkdCompanyId, recordId);
         return result;
+    }
+
+    async dateFormat(time: string, timeTo): Promise<string> {
+        const start = dayjs(time).locale('ru');
+        const end = dayjs(timeTo).locale('ru');
+
+        const formattedDate = `${start.format('dddd DD MMMM HH:mm')}-${end.format('HH:mm')}`;
+        return formattedDate;
     }
 }

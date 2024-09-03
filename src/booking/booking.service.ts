@@ -336,6 +336,6 @@ export class BookingService {
             } 
             return data;
         })
-        return { recordData, timeReservation};
+        return recordData.sort((a, b) => a.id.localeCompare(b.id));;
     }
 }
