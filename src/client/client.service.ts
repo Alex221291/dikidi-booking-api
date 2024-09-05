@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { RequestCreateCLientDto } from './dto/request-cretate-client.dto';
+import { RequestCreateClientDto } from './dto/request-cretate-client.dto';
 import { $Enums } from '@prisma/client';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class ClientService {
         return client;
     }
 
-    async create(data: RequestCreateCLientDto): Promise<any> {
+    async create(data: RequestCreateClientDto): Promise<any> {
         const user = await this.prisma.user.findFirst({
             where: {id: data.userId}, 
         });

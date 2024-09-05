@@ -24,7 +24,7 @@ export class AuthService {
           validate(data.initDataRaw, item.tgToken, {expiresIn: 36000000000});
           currentSalon = item;
         } catch (e) {
-          console.log(e)
+          console.log(e.message)
           continue;
         }
       }
