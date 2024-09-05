@@ -343,4 +343,10 @@ export class BookingService {
         })
         return recordData.sort((a, b) => a.id.localeCompare(b.id));;
     }
+
+    async removeRecord(recordId: string): Promise<any> {
+        const recordInfo =  await this.dikidiService.removeRecord(recordId);
+        console.log(recordInfo);
+        return recordInfo;
+    }
 }
