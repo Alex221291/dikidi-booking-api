@@ -8,6 +8,7 @@ export interface ResponseNewRecordDto {
     duration?: string;
     durationString?: string;
     currency?: Currency;
+    client?: ClientRecordInfo;
     master?: MasterRecordInfo;
     services?: ServiceRecordInfo[];
 }
@@ -25,5 +26,11 @@ export interface ServiceRecordInfo {
     duration?: string;
     durationString?: string;
     image?: string;
+}
+
+export interface ClientRecordInfo {
+    name?: string;
+    phone?: string;
+    comment?: string;
 }
 

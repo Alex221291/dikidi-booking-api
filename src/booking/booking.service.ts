@@ -318,6 +318,11 @@ export class BookingService {
                     abbr: item?.currency?.abbr,
                     iso: item?.currency?.iso,
                 },
+                client: {
+                    name: recordInfo?.firstName,
+                    phone: recordInfo?.phone,
+                    comment: recordInfo?.comment,
+                },
                 master: {
                     id: item?.employees[0]?.id,
                     name: item?.employees[0]?.username,
