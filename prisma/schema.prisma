@@ -14,37 +14,49 @@ datasource db {
 }
 
 model Salon {
-  id    String     @default(uuid()) @id
+  id    String   @default(uuid()) @id @db.Uuid
+  name    String
+  description    String?
   dkdCompanyId    String
-  tgBotId    String
+  tgBotId    BigInt
+  tgBotName    String
   tgToken    String
   users User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@map("salons")
 }
 
 model User {
-  id    String     @default(uuid()) @id
-  tgUserId    String?
+  id    String   @default(uuid()) @id @db.Uuid
+  tgUserId    BigInt
   tgUserName    String?
-  tgChatId    String?
-  userId    String? @default(uuid())
+  tgChatId    BigInt
+  userId    String? @db.Uuid
   role    UserRoles
   salon    Salon?    @relation(fields: [salonId], references: [id])
-  salonId  String? @default(uuid())
+  salonId  String? @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@map("users")
 }
 
 model Client {
-  id    String     @default(uuid()) @id
+  id    String   @default(uuid()) @id @db.Uuid
   name    String?
   phone    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   rewiers Review[]
   records Record[]
   @@map("clients")
 }
 
 model Staff {
-  id    String     @default(uuid()) @id
+  id    String   @default(uuid()) @id @db.Uuid
+  dkdMasterId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   rewiers Review[]
   records Record[]
   contacts StaffContact[]
@@ -52,34 +64,40 @@ model Staff {
 }
 
 model Review {
-  id    String     @default(uuid()) @id
+  id    String   @default(uuid()) @id @db.Uuid
   name    String?
   description    String?
   date    DateTime @default(now()) @db.Date
   score    Int?
   client    Client?    @relation(fields: [clientId], references: [id])
-  clientId  String? @default(uuid())
+  clientId  String? @db.Uuid
   staff    Staff?    @relation(fields: [staffId], references: [id])
-  staffId  String? @default(uuid())
+  staffId  String? @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@map("reviews")
 }
 
 model Record {
-  id    String     @default(uuid()) @id
+  id    String   @default(uuid()) @id @db.Uuid
   dkdRecordId    String?
   client    Client?    @relation(fields: [clientId], references: [id])
-  clientId  String? @default(uuid())
+  clientId  String? @db.Uuid
   staff    Staff?    @relation(fields: [staffId], references: [id])
-  staffId  String? @default(uuid())
+  staffId  String? @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@map("records")
 }
 
 model StaffContact {
-  id    String     @default(uuid()) @id
+  id    String   @default(uuid()) @id @db.Uuid
   type    ContactTypes
   value   String?
   staff    Staff?    @relation(fields: [staffId], references: [id])
-  staffId  String? @default(uuid())
+  staffId  String? @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@map("staff_contacts")
 }
 
@@ -87,11 +105,16 @@ enum UserRoles {
   DIRECTOR
   ADMINISTRATOR
   MASTER
-  CLIENT  
+  CLIENT
+  ADMIN
+  SUPERADMIN
+  USER
 }
 
 enum ContactTypes {
   TELEGRAM
   VIBER
-  WHATSAPP  
+  WHATSAPP
+  INSTAGRAM
+  VK  
 }

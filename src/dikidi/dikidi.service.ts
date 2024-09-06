@@ -306,4 +306,17 @@ export class DikidiService {
                 map(response => response.data)));
         return data
     }
+
+    async removeRecord(recordId: string): Promise<any> {
+        const params = {
+            id: recordId
+        };
+
+        const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/ru/mobile/newrecord/remove_record/`,
+            {params}
+        )
+            .pipe(
+                map(response => response.data)));
+        return data
+    }
 }

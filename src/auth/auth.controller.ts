@@ -2,6 +2,8 @@ import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Request, 
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { User } from './user.decorator';
+import { RequestAuthDto } from './dto/request-auth.dto';
+import { UserPayloadDto } from './dto/user-payload.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -9,8 +11,8 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Query('initDataRow') initDataRow: string) {
-    const result = await this.authService.login(initDataRow);
+  async login(@Body() data: RequestAuthDto) {
+    const result = await this.authService.login(data);
     if (result?.error) {
       throw new HttpException(result, HttpStatus.BAD_REQUEST);
   }
@@ -27,7 +29,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@User() user) {
+  getProfile(@User() user: UserPayloadDto) {
     return user;
   }
 }
