@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, ParseArrayPipe, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, ParseArrayPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { GetCompanyDto } from './dto/get-company.dto';
 import { GetMasterDto } from './dto/get-master.dto';
@@ -162,7 +162,7 @@ export class BookingController {
                     const newRecord = await this.recordService.create({
                         clientId: clientStaffId,
                         dkdRecordId: item.id,
-                        staffId: masterUser.userId,
+                        staffId: masterUser?.userId,
                     }); 
 
                     const recordMainText = `${await this.dateFormat(item?.time, item?.timeTo)}
@@ -184,7 +184,7 @@ ${recordMainText}`;
 ${recordMainText}
 
 ${clientDataText}`;
-                    await this.telegramChatService.sendMessage(salon.tgToken, masterUser.tgChatId.toString(), masterText);
+                    await this.telegramChatService.sendMessage(salon.tgToken, masterUser?.tgChatId.toString(), masterText);
                     
                 
                     // администраторам отослать
@@ -197,7 +197,7 @@ ${recordMainText}
                     
 ${clientDataText}`;
                     for(const administrator of administratorsUser){
-                        await this.telegramChatService.sendMessage(salon.tgToken, administrator.tgChatId.toString(), administratorText);
+                        await this.telegramChatService.sendMessage(salon.tgToken, administrator?.tgChatId.toString(), administratorText);
                     }
                 }
             }
@@ -237,9 +237,16 @@ ${clientDataText}`;
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get('remove')
-    async removeRecord(@User() user: UserPayloadDto, @Query('recordId') recordId: string): Promise<any> {
+    @Delete('remove')
+    async removeRecord(@User() user: UserPayloadDto, @Query('recordId') recordId: string, cookie: string): Promise<any> {
         const result =  await this.bookingService.removeRecord(recordId);
+        return result;
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Put('reschedule')
+    async rescheduleRecord(@User() user: UserPayloadDto, @Query('recordId') recordId: string): Promise<any> {
+        const result =  await this.bookingService.rescheduleRecord(recordId);
         return result;
     }
 
