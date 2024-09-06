@@ -285,6 +285,7 @@ export class BookingService {
         let recordType = 'normal';
         let timeReservation;
         const cookieName = await this.dikidiService.getCookie();
+        console.log('COOKIE_NAME - ' + cookieName);
         const cookie = process.env.COOKIE + cookieName; 
         if(recordInfo.masters.length == 1 && recordInfo.masters[0].serviceId.length == 1){
             timeReservation =  await this.dikidiService.timeReservation(cookie, companyId, recordInfo.masters[0].masterId, recordInfo.masters[0].serviceId, recordInfo.time);
@@ -345,8 +346,19 @@ export class BookingService {
     }
 
     async removeRecord(recordId: string): Promise<any> {
-        const recordInfo =  await this.dikidiService.removeRecord(recordId);
-        console.log(recordInfo);
-        return recordInfo;
+        // удаляем из нашей бд
+        // оповещаем клиента, что запись отменена
+        // оповещаем мастера что запись отменена
+        // оповещаем администратора, что запсь отменена и что её нужно удалить с дикиди
+        return 'удаление в разработке';
+    }
+
+    async rescheduleRecord(recordId: string): Promise<any> {
+        // удаляем из нашей бд старую
+        // записываемся на новую
+        // оповещаем клиента, что запись перенесана
+        // оповещаем мастера что запись перенесана
+        // оповещаем администратора, что запсь перенесена и что старую нужно удалить с дикиди
+        return 'перенос в разработке';
     }
 }
