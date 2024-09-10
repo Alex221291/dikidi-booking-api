@@ -1,4 +1,4 @@
-export class GetCompanyDto {
+export interface GetCompanyDto {
     id?: string;
     name?: string;
     description?: string;
@@ -7,7 +7,7 @@ export class GetCompanyDto {
     phones?: string[];
     city?: string;
     address?: string;
-    coordinateLat?: string;
-    coordinateLon?: string;
+    coordinateLat?: number;
+    coordinateLon?: number;
     currencyShortTitle?: string;
 }

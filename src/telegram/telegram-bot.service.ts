@@ -26,7 +26,6 @@ export class TelegramBotService extends Telegraf {
       const userName = ctx.from.username;
       const botId = ctx.botInfo.id;
       const botName = ctx.botInfo.first_name;
-      
       const salon = await this.prisma.salon.findFirst({
         where: {tgBotId: botId},
       });
@@ -39,7 +38,10 @@ export class TelegramBotService extends Telegraf {
         where: {salonId: salon.id, tgUserId: userId, tgChatId: chatId},
       });
 
-      if(user) return;
+      if(user) {
+        await ctx.reply('Привет. Ты уже с нами.\nЗапишись на услугу!');
+        return;
+      }
       // проверяем, если нет то создаём
       const newUser = await this.prisma.user.create({
         data:{

@@ -58,7 +58,7 @@ export class YclientsService {
     }
 
     async getCompany(companyId: string): Promise<any> {
-        const result = lastValueFrom(this.httpService.get(`https://yclients.com/api/v1/company/${companyId}`, {headers: this.ycHeaders}));
+        const result = lastValueFrom(this.httpService.get(`https://api.yclients.com/api/v1/company/${companyId}`, {headers: this.ycHeaders}));
         return result;
     }
 
