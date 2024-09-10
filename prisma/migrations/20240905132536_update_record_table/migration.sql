@@ -8,4 +8,4 @@
 ALTER TABLE "records" ADD COLUMN     "clientComment" TEXT,
 ADD COLUMN     "clientName" TEXT,
 ADD COLUMN     "clientPhone" TEXT,
-ADD COLUMN     "dkdDate" TIMESTAMP(3) NOT NULL;
+ADD COLUMN     "dkdDate" TIMESTAMP(3);
