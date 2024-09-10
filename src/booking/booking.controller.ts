@@ -76,7 +76,7 @@ export class BookingController {
 
     @UseGuards(JwtAuthGuard)
     @Get('masters')
-    async getMasters(@User() user: UserPayloadDto): Promise<GetMasterDto[] | []> {
+    async getMasters(@User() user: UserPayloadDto): Promise<any> { //GetMasterDto[] | []
         return await this.bookingService.getMasters(user.dkdCompanyId);
     }
 
@@ -95,7 +95,7 @@ export class BookingController {
 
     @UseGuards(JwtAuthGuard)
     @Get('services')
-    async getServices(@User() user: UserPayloadDto): Promise<GetCategoryWithServiceDto> {
+    async getServices(@User() user: UserPayloadDto): Promise<any> { //GetCategoryWithServiceDto
         return this.bookingService.getServices(user.dkdCompanyId);
     }
 
@@ -111,7 +111,7 @@ export class BookingController {
     @HttpCode(200)
     async getMasterServiceDatetimesMulti(@User() user: UserPayloadDto, @Body() body: RequestGetDateTimesDto): Promise<GetMasterServiceDatetimesMulti> {
         console.log(body.masters);
-        const result =  await this.bookingService.getMasterServiceDatetimesMulti(user.dkdCompanyId, body.masters, body.date);
+        const result =  await this.bookingService.getMasterServiceDatetimesMulti(user.dkdCompanyId, body);
         return result;
     }
 
@@ -163,6 +163,10 @@ export class BookingController {
                         clientId: clientStaffId,
                         dkdRecordId: item.id,
                         staffId: masterUser?.userId,
+                        dkdDate: body?.time,
+                        clientName: body?.firstName,
+                        clientPhone: body?.phone,
+                        clientComment: body?.comment
                     }); 
 
                     const recordMainText = `${await this.dateFormat(item?.time, item?.timeTo)}

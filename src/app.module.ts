@@ -12,9 +12,10 @@ import { ClientModule } from './client/client.module';
 import { StaffModule } from './staff/staff.module';
 import { RecordModule } from './record/record.module';
 import { UserModule } from './user/user.module';
+import { YclientsModule } from './yclients/yclients.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), BookingModule, DikidiModule, TelegramModule, AuthModule, PrismaModule, SalonModule, ClientModule, StaffModule, RecordModule, UserModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), BookingModule, DikidiModule, TelegramModule, AuthModule, PrismaModule, SalonModule, ClientModule, StaffModule, RecordModule, UserModule, YclientsModule],
   controllers: [AppController],
   providers: [AppService],
 })

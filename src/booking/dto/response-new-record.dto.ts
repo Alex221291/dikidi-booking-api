@@ -1,4 +1,3 @@
-import { Currency } from "./get-master-full-info.dto";
 
 export interface ResponseNewRecordDto {
     id?: string;
@@ -7,7 +6,6 @@ export interface ResponseNewRecordDto {
     price?: string;
     duration?: string;
     durationString?: string;
-    currency?: Currency;
     client?: ClientRecordInfo;
     master?: MasterRecordInfo;
     services?: ServiceRecordInfo[];

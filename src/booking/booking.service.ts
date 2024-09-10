@@ -5,124 +5,121 @@ import { GetMasterDto } from './dto/get-master.dto';
 import { GetCategoryWithServiceDto} from './dto/get-service.dto';
 import { GetMasterServiceDatetimes, MasterDatetimesInfo } from './dto/get-master-service-datetimes.dto';
 import { GetMasterFullInfoDto } from './dto/get-master-full-info.dto';
-import { RequestMasterServicesDateTimesDto } from './dto/request-get-date-times-multi.dto';
+import { RequestGetDateTimesDto, RequestMasterServicesDateTimesDto } from './dto/request-get-date-times-multi.dto';
 import { GetMasterServiceDatetimesMulti, MasterInfo, ServiceInfo } from './dto/get-master-service-datetimes-multi.dto';
 import { RequestRecordDto } from './dto/request-post-record.dto';
 import { RequestGetDatesTrueDto } from './dto/request-get-dates-true.dto';
 import { ResponseNewRecordDto } from './dto/response-new-record.dto';
 import { GetMastersMultiDto, MasterMultiInfo } from './dto/get-master-multi.dto';
 import * as dayjs from 'dayjs';
+import { YclientsService } from 'src/yclients/yclients.service';
 
 @Injectable()
 export class BookingService {
-    constructor(private dikidiService: DikidiService)
+    constructor(private dikidiService: DikidiService,
+        private yciletnService: YclientsService,
+    )
     {}
 
     async getCompany(companyId: string): Promise<GetCompanyDto | null> {
-        const data =  await this.dikidiService.getCompany(companyId);
-        const company = data?.data?.company;
+        // const data =  await this.dikidiService.getCompany(companyId);
+        // const company = data?.data?.company;
+
+        // return {
+        //     id: company?.id,
+        //     name: company?.name,
+        //     description: company?.description,
+        //     image: company?.image,
+        //     phones: company?.phones,
+        //     address: company?.address,
+        //     currencyAbbr: company?.currency_abbr,
+        //     schedule: company?.schedule?.map(item => {
+        //         return {
+        //             day: item?.day,
+        //             workFrom: item?.work_from,
+        //             workTo: item?.work_to,
+        //         }
+        //     })
+        // };
+
+        const data =  (await this.yciletnService.getCompany(companyId)).data?.data;
 
         return {
-            id: company?.id,
-            name: company?.name,
-            description: company?.description,
-            image: company?.image,
-            phones: company?.phones,
-            address: company?.address,
-            currencyAbbr: company?.currency_abbr,
-            schedule: company?.schedule?.map(item => {
-                return {
-                    day: item?.day,
-                    workFrom: item?.work_from,
-                    workTo: item?.work_to,
-                }
-            })
+            id: data?.id,
+            name: data?.title,
+            description: data?.short_descr,
+            image: data?.logo,
+            schedule: data?.schedule,
+            phones: data?.phones,
+            city: data?.city,
+            address: data?.address,
+            coordinateLat: data?.coordinate_lat,
+            coordinateLon: data?.coordinate_lon,
+            currencyShortTitle: data?.currency_short_title,
         };
     }
 
     async getMasters(companyId: string): Promise<GetMasterDto[] | []> {
-        const data =  await this.dikidiService.getMasters(companyId);
+        // const data =  await this.dikidiService.getMasters(companyId);
 
-        return data?.masters_order?.map(item => {
-            return {
-                id: data?.masters[item]?.id,
-                name: data?.masters[item]?.username,
-                post: data?.masters[item]?.post,
-                image: data?.masters[item]?.image,
-            }
-        });
+        // return data?.masters_order?.map(item => {
+        //     return {
+        //         id: data?.masters[item]?.id,
+        //         name: data?.masters[item]?.username,
+        //         post: data?.masters[item]?.post,
+        //         image: data?.masters[item]?.image,
+        //     }
+        // });
+        const data = (await this.yciletnService.getMasters(companyId)).data?.data;
+        return data?.map(item => {
+                return {
+                    id: item?.id,
+                    name: item?.name,
+                    post: item?.specialization,
+                    image: item?.avatar,
+                    rating: item?.rating,
+                    seanceDate: item?.seance_date,
+                }
+            });
     }
 
-    async getServices(companyId: string): Promise<GetCategoryWithServiceDto> {
-        const data =  await this.dikidiService.getServices(companyId);
-        const categories = data?.data?.list;
+    async getServices(companyId: string): Promise<GetCategoryWithServiceDto> { 
+        // const data =  await this.dikidiService.getServices(companyId);
+        // const categories = data?.data?.list;
 
-        return categories?.map(category => {
+        // return categories?.map(category => {
+        //     return {
+        //         id: category?.id,
+        //         name: category?.name,
+        //         services: category?.services?.map(service  => {
+        //             return {
+        //                 id: service?.id,
+        //                 name: service?.name,
+        //                 image: service?.image,
+        //                 time: service?.time,
+        //                 price: service?.cost,
+        //             }
+        //         })
+        //     }
+        // }) ;
+
+        const data = (await this.yciletnService.getServices(companyId)).data?.data;
+
+        return data?.category?.map(category => {
             return {
                 id: category?.id,
-                name: category?.name,
-                services: category?.services?.map(service  => {
+                name: category?.title,
+                services: data?.services?.filter(item => item?.category_id == category?.id).map(service  => {
                     return {
                         id: service?.id,
-                        name: service?.name,
+                        name: service?.title,
                         image: service?.image,
-                        time: service?.time,
-                        price: service?.cost,
+                        time: service?.seance_length,
+                        price: service?.price_max,
                     }
                 })
             }
         }) ;
-    }
-
-    delay(ms: number) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
-    }
-
-    async getMastersFullInfo(companyId: string): Promise<GetMasterFullInfoDto[] | []> {
-        const data =  await this.dikidiService.getMasters(companyId);
-
-        const masterIds = data?.masters_order;
-
-        const masters =  Promise.all(masterIds?.map(async item => {
-            const masterData = (await this.dikidiService.getMaster(companyId, item))?.data;
-            console.log(masterData.id);
-            const master: GetMasterFullInfoDto = {
-                id: masterData?.id,
-                name: masterData?.username,
-                post: masterData?.post,
-                description: masterData?.description,
-                image: masterData?.image,
-                currency: {
-                    id: masterData?.currency?.id,
-                    title: masterData?.currency?.title,
-                    abbr: masterData?.currency?.abbr,
-                    iso: masterData?.currency?.iso,
-                },
-                gallery: masterData?.gallery?.map(gal  => {
-                    return {
-                        big: gal?.big,
-                        zoom: gal?.zoom,
-                    }
-                }),
-                services: await Promise.all(masterData?.services?.map(async service  => {
-                    //console.log(masterData.id + ' - ' + service.id);
-                    await this.delay(1000);
-                    //const serviceDateTimes = await this.dikidiService.getDatetimes(companyId, masterData?.id, service?.id, '');
-                    return {
-                        id: service?.id,
-                        name: service?.name,
-                        image: service?.image,
-                        time: service?.time,
-                        price: service?.cost,
-                        //dateTrue: serviceDateTimes?.data?.dates_true,
-                        //dateNear: serviceDateTimes?.data?.date_near,
-                        //times: serviceDateTimes?.data?.times[masterData?.id],
-                    }
-                }))
-            };
-            return master;
-        }));
-        return masters;
     }
 
     async getMastersMulti(companyId: string, serviceId: string[]): Promise<any> {
@@ -151,36 +148,58 @@ export class BookingService {
     }
 
     async getMasterFullInfo(companyId: string, masterId: string): Promise<GetMasterFullInfoDto | null> {
-        const masterData = (await this.dikidiService.getMaster(companyId, masterId))?.data;
-        const master: GetMasterFullInfoDto = {
-            id: masterData?.id,
-            name: masterData?.username,
-            post: masterData?.post,
-            description: masterData?.description,
-            image: masterData?.image,
-            currency: {
-                id: masterData?.currency?.id,
-                title: masterData?.currency?.title,
-                abbr: masterData?.currency?.abbr,
-                iso: masterData?.currency?.iso,
-            },
-            gallery: masterData?.gallery?.map(gal  => {
-                return {
-                    big: gal?.big,
-                    zoom: gal?.zoom,
-                }
-            }),
-            services: masterData?.services?.map(service  => {
+        // const masterData = (await this.dikidiService.getMaster(companyId, masterId))?.data;
+        // const master: GetMasterFullInfoDto = {
+        //     id: masterData?.id,
+        //     name: masterData?.username,
+        //     post: masterData?.post,
+        //     description: masterData?.description,
+        //     image: masterData?.image,
+        //     currency: {
+        //         id: masterData?.currency?.id,
+        //         title: masterData?.currency?.title,
+        //         abbr: masterData?.currency?.abbr,
+        //         iso: masterData?.currency?.iso,
+        //     },
+        //     gallery: masterData?.gallery?.map(gal  => {
+        //         return {
+        //             big: gal?.big,
+        //             zoom: gal?.zoom,
+        //         }
+        //     }),
+        //     services: masterData?.services?.map(service  => {
+        //         return {
+        //             id: service?.id,
+        //             name: service?.name,
+        //             image: service?.icon?.url,
+        //             time: service?.time,
+        //             price: service?.cost,
+        //         }
+        //     })
+        // };
+        // return master;
+        const master = (await this.yciletnService.getMasters(companyId)).data?.data?.find(item => item?.id == masterId);
+        const services = (await this.yciletnService.getServices(companyId, masterId)).data?.data;
+
+        return {
+            id: master?.id,
+            name: master?.name,
+            post: master?.specialization,
+            description: null,
+            image: master?.avatar,
+            rating: master?.rating,
+            seanceDate: master?.seance_date,
+            gallery: [],
+            services: services?.services?.map(service  => {
                 return {
                     id: service?.id,
-                    name: service?.name,
-                    image: service?.icon?.url,
-                    time: service?.time,
-                    price: service?.cost,
+                        name: service?.title,
+                        image: service?.image,
+                        time: service?.seance_length / 60,
+                        price: service?.price_max,
                 }
             })
         };
-        return master;
     }
 
     async getMasterServiceDatetimes(companyId: string, serviceId: string, date: string, masterId?: string): Promise<GetMasterServiceDatetimes> {
@@ -212,46 +231,54 @@ export class BookingService {
         };
     }
 
-    async getMasterServiceDatetimesMulti(companyId: string, masters: RequestMasterServicesDateTimesDto[], date:string): Promise<GetMasterServiceDatetimesMulti> {
-        const dikidiDatetimesMulti =  (await this.dikidiService.getDatetimesMulti(companyId, masters, date))?.data;
+    async getMasterServiceDatetimesMulti(companyId: string, body: RequestGetDateTimesDto): Promise<GetMasterServiceDatetimesMulti> {
+        // const dikidiDatetimesMulti =  (await this.dikidiService.getDatetimesMulti(companyId, body.masters, body.date))?.data;
 
-        const serviceIdString =  (masters.reduce((acc, master) => {
-            return acc.concat(master.serviceId);
-        }, [])).join(',');
+        // const serviceIdString =  (body.masters.reduce((acc, master) => {
+        //     return acc.concat(master.serviceId);
+        // }, [])).join(',');
 
-        let result: GetMasterServiceDatetimesMulti = {
-            masterInfo: [],
+        // let result: GetMasterServiceDatetimesMulti = {
+        //     masterInfo: [],
+        //     workData: {
+        //         dateNear: dikidiDatetimesMulti?.service_list[serviceIdString]?.date_near,
+        //         dateTrue: dikidiDatetimesMulti?.service_list[serviceIdString]?.dates_true?.map(item => item?.day),
+        //         times: dikidiDatetimesMulti?.service_list[serviceIdString]?.times.flat(),
+        //     }
+        // };
+
+        // result.masterInfo = body.masters.map(item => {
+        //     const serviceInfo: ServiceInfo[] = item.serviceId.map(service => {
+        //         return {
+        //             id: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.service_id,
+        //             name: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.service_name,
+        //             image: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.service_img,
+        //             time: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.time,
+        //             price: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.cost,
+        //         }
+        //     });
+        //     return {
+        //         id: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[item.serviceId[0]]?.id,
+        //         name: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[item.serviceId[0]]?.username,
+        //         image: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[item.serviceId[0]]?.image,
+        //         serviceInfo: serviceInfo,
+        //     };
+
+        // });
+        // return result;
+        const data = (await this.yciletnService.getDatetimesMulti(companyId, body.masters[0].masterId, body.date, body.masters[0].serviceId)).data?.data;
+        return {
             workData: {
-                dateNear: dikidiDatetimesMulti?.service_list[serviceIdString]?.date_near,
-                dateTrue: dikidiDatetimesMulti?.service_list[serviceIdString]?.dates_true?.map(item => item?.day),
-                times: dikidiDatetimesMulti?.service_list[serviceIdString]?.times.flat(),
+                times: data?.map(item => item?.time)
             }
         };
-
-        result.masterInfo = masters.map(item => {
-            const serviceInfo: ServiceInfo[] = item.serviceId.map(service => {
-                return {
-                    id: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.service_id,
-                    name: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.service_name,
-                    image: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.service_img,
-                    time: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.time,
-                    price: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[service]?.cost,
-                }
-            });
-            return {
-                id: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[item.serviceId[0]]?.id,
-                name: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[item.serviceId[0]]?.username,
-                image: dikidiDatetimesMulti?.service_list[serviceIdString]?.master_service_info[item.serviceId[0]]?.image,
-                serviceInfo: serviceInfo,
-            };
-
-        });
-        return result;
     }
 
-    async getDatesTrue(companyId: string, requestDatesTrue: RequestGetDatesTrueDto): Promise<string[]> {
-        const response =  await this.dikidiService.getDatesTrue(companyId, requestDatesTrue.masters, requestDatesTrue.dateFrom, requestDatesTrue.dateTo);
-        return response?.dates_true || [];
+    async getDatesTrue(companyId: string, requestDatesTrue: RequestGetDatesTrueDto): Promise<any> {
+        // const response =  await this.dikidiService.getDatesTrue(companyId, requestDatesTrue.masters, requestDatesTrue.dateFrom, requestDatesTrue.dateTo);
+        // return response?.dates_true || [];
+        const data = (await this.yciletnService.getDatesTrue(companyId, requestDatesTrue.masters[0].masterId, requestDatesTrue.masters[0].serviceId, requestDatesTrue.dateFrom, requestDatesTrue.dateTo)).data?.data;
+        return data?.booking_dates;
     }
 
     // async timeReservation(companyId: string, masterId: string, serviceId: string[], time: string): Promise<any> {
@@ -313,12 +340,12 @@ export class BookingService {
                 price: item?.cost,
                 duration: item?.duration,
                 durationString: item?.duration_string,
-                currency: {
-                    id: item?.currency?.id,
-                    title: item?.currency?.title,
-                    abbr: item?.currency?.abbr,
-                    iso: item?.currency?.iso,
-                },
+                // currency: {
+                //     id: item?.currency?.id,
+                //     title: item?.currency?.title,
+                //     abbr: item?.currency?.abbr,
+                //     iso: item?.currency?.iso,
+                // },
                 client: {
                     name: recordInfo?.firstName,
                     phone: recordInfo?.phone,

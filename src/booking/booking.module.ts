@@ -7,9 +7,10 @@ import { StaffModule } from 'src/staff/staff.module';
 import { TelegramModule } from 'src/telegram/telegram.module';
 import { SalonModule } from 'src/salon/salon.module';
 import { RecordModule } from 'src/record/record.module';
+import { YclientsModule } from 'src/yclients/yclients.module';
 
 @Module({
-  imports: [DikidiModule, SalonModule, ClientModule, StaffModule, TelegramModule, RecordModule],
+  imports: [DikidiModule, SalonModule, ClientModule, StaffModule, TelegramModule, RecordModule, YclientsModule],
   providers: [BookingService],
   controllers: [BookingController],
 })

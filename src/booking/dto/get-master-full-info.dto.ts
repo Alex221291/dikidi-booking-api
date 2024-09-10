@@ -6,16 +6,10 @@ export interface GetMasterFullInfoDto {
     post?: string;
     description?: string;
     image?: string;
+    rating?: string;
+    seanceDate?: string;
     gallery?: Gallery[];
     services?: ServiceDateTimes[];
-    currency?: Currency;
-}
-
-export interface Currency {
-    id?: number;
-    title?: string;
-    abbr?: string;
-    iso?: string;
 }
 
 export interface Gallery{

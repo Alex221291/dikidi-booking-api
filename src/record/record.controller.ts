@@ -13,6 +13,6 @@ export class RecordController {
     @UseGuards(JwtAuthGuard)
     @Get()
     async getAll(@User() user: UserPayloadDto): Promise<any> {
-        return await this.recordService.getClientRecords(user.clientStaffId);
+        return await this.recordService.getClientRecords(user.clientId, user.clientStaffId);
     }
 }

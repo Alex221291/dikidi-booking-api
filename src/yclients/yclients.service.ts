@@ -5,49 +5,31 @@ import { AxiosResponse } from 'axios';
 import * as qs from 'qs';
 import { RequestGetDateTimesDto } from 'src/booking/dto/request-get-date-times-multi.dto';
 @Injectable()
-export class DikidiService {
-    constructor(private readonly httpService: HttpService) {}
+export class YclientsService {
+    private readonly ycHeaders;
+    constructor(private readonly httpService: HttpService) {
+        this.ycHeaders = {
+            'Authorization': `Bearer ${process.env.YC_PATNER_TOKEN}`,
+            'Accept': process.env.YC_ACCEPT,
+            'Content-Type': process.env.YC_CONTENT_TYPE,
+        };
+    }
 
     onModuleInit() {
-        // this.httpService.axiosRef.interceptors.request.use(request => {
-        //   console.log('Starting Request', request);
-        //   return request;
-        // });
+        this.httpService.axiosRef.interceptors.request.use(request => {
+          console.log('Starting Request', request);
+          return request;
+        });
     
         // this.httpService.axiosRef.interceptors.response.use(response => {
         //   console.log('Response:', response);
         //   return response;
         // });
-      }
-
-      async getCookie(): Promise<any> {
-        let headers = {};
-        // Отправляем запрос к dikidi.ru с фронтенда
-        await fetch('https://dikidi.ru/ru/mobile/ajax/newrecord/project_options/?social_key=&company=591511', {
-            method: 'GET',
-            credentials: 'include' // Включает куки в запрос
-        })
-        .then(response => {
-            for (let pair of response.headers.entries()) {
-                headers[pair[0]] = pair[1];
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Обработка данных
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    
-        return headers['set-cookie'];
     }
 
-    async getMasters(companyId: string): Promise<any> {
-        const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/ru/ajax/newrecord/to_master_get_masters/?company_id=${companyId}`)
-            .pipe(
-                map(response => response.data)));
-        return data;
+    async getMasters(companyId: string): Promise<AxiosResponse<any, any>> {
+        const result = lastValueFrom(this.httpService.get(`https://api.yclients.com/api/v1/book_staff/${companyId}`, {headers: this.ycHeaders}));
+        return result;
     }
 
     async getMastersMulti(companyId: string, serviceId: string[]): Promise<any> {
@@ -65,98 +47,38 @@ export class DikidiService {
         return response;
     }
 
-    async getServices(companyId: string): Promise<any> {
-        const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/mobile/ajax/newrecord/company_services/?lang=ru&array=1&company=${companyId}&master=&share=`)
-            .pipe(
-                map(response => response.data)));
-        return data;
+    async getServices(companyId: string, staffId?: string, datetime?: string, serviceIds?: string[]): Promise<AxiosResponse<any, any>> {
+        const params = {
+            staff_id: staffId,
+            datetime,
+            service_ids: serviceIds
+        }
+        const result = lastValueFrom(this.httpService.get(`https://api.yclients.com/api/v1/book_services/${companyId}`, {params, headers: this.ycHeaders}));
+        return result;
     }
 
     async getCompany(companyId: string): Promise<any> {
-        const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/ru/mobile/ajax/newrecord/project_options/?company=${companyId}&social_key=`)
-            .pipe(
-                map(response => response.data)));
-        return data;
+        const result = lastValueFrom(this.httpService.get(`https://yclients.com/api/v1/company/${companyId}`, {headers: this.ycHeaders}));
+        return result;
     }
 
-    async getMaster(companyId: string, masterId: string): Promise<any> {
-        const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/ru/mobile/ajax/newrecord/master_info/?social_key=&company_id=${companyId}&master_id=${masterId}`)
-            .pipe(
-                map(response => response.data)));
-        return data;
-    }
-
-    async getDatetimes(companyId: string, masterId: string, serviceId: string, date: string): Promise<any> {
-        const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/ru/mobile/ajax/newrecord/get_datetimes/?company_id=${companyId}&date=${date}&service_id%5B%5D=${serviceId}&master_id=${masterId}`)
-            .pipe(
-                map(response => response.data)));
-        return data;
-    }
-
-    async getDatetimesMulti(companyId: string, masters: {masterId: string, serviceId: string[]}[], date?: string): Promise<any> {
-        // Формируем service_id_list
-        const service_id_list = masters.reduce((acc, master) => {
-            return acc.concat(master.serviceId);
-        }, []);
-    
-        // Формируем service_master_list
-        const service_master_list = masters.reduce((acc, master) => {
-            master.serviceId.forEach(serviceId => {
-            acc[serviceId] = master.masterId;
-            });
-            return acc;
-        }, {});
-    
-        // Параметры запроса
+    async getDatetimesMulti(companyId: string, staffId: string, date: string, serviceIds?: string[]): Promise<any> {
         const params = {
-            company_id: companyId,
-            type_multi: 'successively',
-            service_id_list: service_id_list,
-            service_master_list: service_master_list,
-            service_id: service_id_list.join(','),
-            date: date,
-            with_first: '1'
-        };
-    
-        const url = 'https://dikidi.ru/ru/mobile/ajax/newrecord/get_datetimes_multi/';
-
-        const response = await lastValueFrom(
-        this.httpService.get(url, { params }).pipe(
-            map(response => response.data)
-        ));
-        return response;
+            service_ids: serviceIds
+        }
+        const result = lastValueFrom(this.httpService.get(`https://api.yclients.com/api/v1/book_times/${companyId}/${staffId}/${date}`, {params, headers: this.ycHeaders}));
+        return result;
     }
 
-    async getDatesTrue(companyId: string, masters: {masterId: string, serviceId?: string[]}[], dateFrom: string, dateTo: string,): Promise<any> {
-        // Формируем service_id_list
-        const serviceIdList = masters.reduce((acc, master) => {
-            return acc.concat(master?.serviceId);
-        }, []);
-    
-        // Формируем service_master_list
-        const serviceMasterList = masters.reduce((acc, master) => {
-            master?.serviceId.forEach(serviceId => {
-            acc[serviceId] = master.masterId;
-            });
-            return acc;
-        }, {});
-    
-        // Параметры запроса
+    async getDatesTrue(companyId: string, masterId: string, serviceId: string[], dateFrom: string, dateTo: string,): Promise<any> {
         const params = {
-            company_id: companyId,
-            master_id: serviceMasterList,
-            services_id: serviceIdList,
+            staff_id: masterId,
+            service_ids: serviceId,
             date_from: dateFrom,
-            date_to: dateTo
-        };
-    
-        const url = 'https://dikidi.ru/ru/ajax/newrecord/get_dates_true/';
-
-        const response = await lastValueFrom(
-        this.httpService.get(url, { params }).pipe(
-            map(response => response.data)
-        ));
-        return response;
+            date_to: dateTo,
+        }
+        const result = lastValueFrom(this.httpService.get(`https://api.yclients.com/api/v1/book_dates/${companyId}`, {params, headers: this.ycHeaders}));
+        return result;
     }
 
     async timeReservation(cookie: string, companyId: string, masterId: string, serviceId: string[], time: string): Promise<any> {
@@ -313,8 +235,7 @@ export class DikidiService {
         };
 
         const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/ru/mobile/newrecord/remove_record/`,
-            {params
-            }
+            {params}
         )
             .pipe(
                 map(response => response.data)));

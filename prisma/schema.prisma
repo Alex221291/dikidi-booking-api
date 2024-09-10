@@ -85,6 +85,10 @@ model Record {
   clientId  String? @db.Uuid
   staff    Staff?    @relation(fields: [staffId], references: [id])
   staffId  String? @db.Uuid
+  clientName    String?
+  clientPhone    String?
+  clientComment    String?
+  dkdDate    DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@map("records")
