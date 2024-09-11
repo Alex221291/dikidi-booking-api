@@ -1,5 +1,3 @@
-import { GetServiceDto } from "./get-service.dto";
-
 export interface GetMasterFullInfoDto {
     id?: string;
     name?: string;

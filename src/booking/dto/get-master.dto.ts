@@ -9,7 +9,7 @@ export interface GetMasterDto {
 }
 
 export interface FutureRecordingInfo {
-    totalDuration?: string;
-    totalPrice?: string;
+    totalDuration?: number;
+    totalPrice?: number;
 }
 
