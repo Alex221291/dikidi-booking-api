@@ -13,7 +13,8 @@ export class StaffService {
 
     async getMasterUser(dkdMasterId: string): Promise<any> {
         const staff =  await this.prisma.staff.findFirst({where:{dkdMasterId}});
-        const master =  await this.prisma.user.findFirst({where:{userId: staff.id}});
+        if(!staff) return null;
+        const master =  await this.prisma.user.findFirst({where:{userId: staff?.id}});
         return master;
     }
 

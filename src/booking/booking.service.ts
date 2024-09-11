@@ -10,7 +10,6 @@ import { GetMasterServiceDatetimesMulti, MasterInfo, ServiceInfo } from './dto/g
 import { RequestRecordDto } from './dto/request-post-record.dto';
 import { RequestGetDatesTrueDto } from './dto/request-get-dates-true.dto';
 import { ResponseNewRecordDto } from './dto/response-new-record.dto';
-import { GetMastersMultiDto, MasterMultiInfo } from './dto/get-master-multi.dto';
 import * as dayjs from 'dayjs';
 import { YclientsService } from 'src/yclients/yclients.service';
 
@@ -45,7 +44,7 @@ export class BookingService {
         const data =  (await this.yciletnService.getCompany(companyId)).data?.data;
 
         return {
-            id: data?.id,
+            id: data?.id.toString(),
             name: data?.title,
             description: data?.short_descr,
             image: data?.logo,
@@ -73,7 +72,7 @@ export class BookingService {
         const data = (await this.yciletnService.getMasters(companyId)).data?.data;
         return data?.map(item => {
                 return {
-                    id: item?.id,
+                    id: item?.id.toString(),
                     name: item?.name,
                     post: item?.specialization,
                     image: item?.avatar,
@@ -107,44 +106,64 @@ export class BookingService {
 
         return data?.category?.map(category => {
             return {
-                id: category?.id,
+                id: category?.id.toString(),
                 name: category?.title,
                 services: data?.services?.filter(item => item?.category_id == category?.id).map(service  => {
                     return {
-                        id: service?.id,
+                        id: service?.id.toString(),
                         name: service?.title,
                         image: service?.image,
                         time: service?.seance_length,
-                        price: service?.price_max,
+                        priceMin: service?.price_min,
+                        priceMax: service?.price_max,
                     }
                 })
             }
         }) ;
     }
 
-    async getMastersMulti(companyId: string, serviceId: string[]): Promise<any> {
-        const data =  (await this.dikidiService.getMastersMulti(companyId, serviceId))?.data;
-        return serviceId.map(item => {
-            const mastersData: MasterMultiInfo[] = [];
-            for (let key in data[item]?.masters) {
-                mastersData.push({
-                    masterId: key,
-                    masterName: data[item]?.masters[key]?.master_name,
-                    masterImage: data[item]?.masters[key]?.master_img,
-                    serviceName: data[item]?.masters[key]?.service_name,
-                    serviceImage: data[item]?.masters[key]?.service_img,
-                    time: data[item]?.masters[key]?.time,
-                    cost: data[item]?.masters[key]?.cost,
-                    currency: data[item]?.masters[key]?.currency?.abbr
-                });
-            }
+    async getMastersMulti(companyId: string, serviceId: string[]): Promise<GetMasterDto[]> {
+        // const data =  (await this.dikidiService.getMastersMulti(companyId, serviceId))?.data;
+        // return serviceId.map(item => {
+        //     const mastersData: MasterMultiInfo[] = [];
+        //     for (let key in data[item]?.masters) {
+        //         mastersData.push({
+        //             masterId: key,
+        //             masterName: data[item]?.masters[key]?.master_name,
+        //             masterImage: data[item]?.masters[key]?.master_img,
+        //             serviceName: data[item]?.masters[key]?.service_name,
+        //             serviceImage: data[item]?.masters[key]?.service_img,
+        //             time: data[item]?.masters[key]?.time,
+        //             cost: data[item]?.masters[key]?.cost,
+        //             currency: data[item]?.masters[key]?.currency?.abbr
+        //         });
+        //     }
             
-            const serviceData: GetMastersMultiDto = {
-                serviceId: data[item]?.service_id,
-                masters: mastersData
-            }
-            return serviceData;
-        });
+        //     const serviceData: GetMastersMultiDto = {
+        //         serviceId: data[item]?.service_id,
+        //         masters: mastersData
+        //     }
+        //     return serviceData;
+        // });
+        const data = (await this.yciletnService.getMasters(companyId, serviceId)).data?.data;
+        return Promise.all(data?.map(async item => {
+            const masterServicesResponse = await this.yciletnService.getServices(companyId, item?.id);
+            const masterServices = masterServicesResponse?.data?.data?.services;
+            const currentServices = masterServices?.filter(service => serviceId.includes(service.id.toString()));
+            console.log(currentServices.length)
+            return {
+                id: item?.id.toString(),
+                name: item?.name,
+                post: item?.specialization,
+                image: item?.avatar,
+                rating: item?.rating,
+                seanceDate: item?.seance_date,
+                futureRecordingInfo: {
+                    totalDuration: currentServices?.reduce((acc, service) => acc + service.seance_length, 0) / 60 || 0,
+                    totalPrice: currentServices?.reduce((acc, service) => acc + service.price_max, 0) || 0,
+                }
+            };
+        }));
     }
 
     async getMasterFullInfo(companyId: string, masterId: string): Promise<GetMasterFullInfoDto | null> {
@@ -182,7 +201,7 @@ export class BookingService {
         const services = (await this.yciletnService.getServices(companyId, masterId)).data?.data;
 
         return {
-            id: master?.id,
+            id: master?.id.toString(),
             name: master?.name,
             post: master?.specialization,
             description: null,
@@ -192,44 +211,45 @@ export class BookingService {
             gallery: [],
             services: services?.services?.map(service  => {
                 return {
-                    id: service?.id,
+                    id: service?.id.toString(),
                         name: service?.title,
                         image: service?.image,
                         time: service?.seance_length / 60,
-                        price: service?.price_max,
+                        priceMin: service?.price_min,
+                        priceMax: service?.price_max,
                 }
             })
         };
     }
 
-    async getMasterServiceDatetimes(companyId: string, serviceId: string, date: string, masterId?: string): Promise<GetMasterServiceDatetimes> {
-        const data =  (await this.dikidiService.getDatetimes(companyId, masterId, serviceId, date))?.data;
-        const mastersData: MasterDatetimesInfo[] = [];
-            for (let key in data?.masters) {
-                mastersData.push({
-                    masterId: data?.masters[key]?.id,
-                    masterName: data?.masters[key]?.username,
-                    masterImage: data?.masters[key]?.image,
-                    serviceName: data?.masters[key]?.service_name,
-                    serviceImage: data?.masters[key]?.service_img,
-                    time: data?.masters[key]?.time,
-                    price: data?.masters[key]?.cost,
-                    currency: data?.currency?.currency_abbr,
-                    times: data?.times[key]?.map(item => {
-                        const timeFormat= dayjs(item).format('HH:mm');
-                        return timeFormat;
-                    }),
-                });}
-        return {
-            serviceId: serviceId,
-            masters: mastersData,
-            workData:{
-                dateNear: data?.date_near,
-                dateTrue: data?.dates_true,
-            }
+    // async getMasterServiceDatetimes(companyId: string, serviceId: string, date: string, masterId?: string): Promise<GetMasterServiceDatetimes> {
+    //     const data =  (await this.dikidiService.getDatetimes(companyId, masterId, serviceId, date))?.data;
+    //     const mastersData: MasterDatetimesInfo[] = [];
+    //         for (let key in data?.masters) {
+    //             mastersData.push({
+    //                 masterId: data?.masters[key]?.id,
+    //                 masterName: data?.masters[key]?.username,
+    //                 masterImage: data?.masters[key]?.image,
+    //                 serviceName: data?.masters[key]?.service_name,
+    //                 serviceImage: data?.masters[key]?.service_img,
+    //                 time: data?.masters[key]?.time,
+    //                 price: data?.masters[key]?.cost,
+    //                 currency: data?.currency?.currency_abbr,
+    //                 times: data?.times[key]?.map(item => {
+    //                     const timeFormat= dayjs(item).format('HH:mm');
+    //                     return timeFormat;
+    //                 }),
+    //             });}
+    //     return {
+    //         serviceId: serviceId,
+    //         masters: mastersData,
+    //         workData:{
+    //             dateNear: data?.date_near,
+    //             dateTrue: data?.dates_true,
+    //         }
 
-        };
-    }
+    //     };
+    // }
 
     async getMasterServiceDatetimesMulti(companyId: string, body: RequestGetDateTimesDto): Promise<GetMasterServiceDatetimesMulti> {
         // const dikidiDatetimesMulti =  (await this.dikidiService.getDatetimesMulti(companyId, body.masters, body.date))?.data;
@@ -308,68 +328,116 @@ export class BookingService {
         return recordInfo;
     }
 
+    // async newRecord(companyId: string, recordInfo: RequestRecordDto): Promise<any> {
+    //     let recordType = 'normal';
+    //     let timeReservation;
+    //     const cookieName = await this.dikidiService.getCookie();
+    //     console.log('COOKIE_NAME - ' + cookieName);
+    //     const cookie = process.env.COOKIE + cookieName; 
+    //     if(recordInfo.masters.length == 1 && recordInfo.masters[0].serviceId.length == 1){
+    //         timeReservation =  await this.dikidiService.timeReservation(cookie, companyId, recordInfo.masters[0].masterId, recordInfo.masters[0].serviceId, recordInfo.time);
+    //         if(timeReservation?.error)
+    //             return {error: timeReservation?.message};
+    //     } else{
+    //         recordType = 'multi';
+    //         timeReservation =  await this.dikidiService.timeReservationMulti(cookie, companyId, recordInfo.masters, recordInfo.time);
+    //         if(timeReservation?.error?.code !== 0)
+    //             return {error: timeReservation.error?.message};
+    //     }
+
+    //     const check = await this.dikidiService.check(cookie, recordType, companyId, recordInfo.phone, recordInfo.firstName, recordInfo.comment);;
+
+    //     const record =  await this.dikidiService.record(cookie, recordType, companyId, recordInfo.phone, recordInfo.firstName, recordInfo.comment);
+
+    //     if(record?.error)
+    //         return {error: record?.message};
+
+    //     const recordData : ResponseNewRecordDto[] = record?.bookings?.map(item => {
+    //         const data: ResponseNewRecordDto = {
+    //             id: item?.id,
+    //             time: item?.time,
+    //             timeTo: item?.time_to,
+    //             price: item?.cost,
+    //             duration: item?.duration,
+    //             durationString: item?.duration_string,
+    //             // currency: {
+    //             //     id: item?.currency?.id,
+    //             //     title: item?.currency?.title,
+    //             //     abbr: item?.currency?.abbr,
+    //             //     iso: item?.currency?.iso,
+    //             // },
+    //             client: {
+    //                 name: recordInfo?.firstName,
+    //                 phone: recordInfo?.phone,
+    //                 comment: recordInfo?.comment,
+    //             },
+    //             master: {
+    //                 id: item?.employees[0]?.id,
+    //                 name: item?.employees[0]?.username,
+    //                 image: item?.employees[0]?.image,
+    //             },
+    //             services: item?.services?.map(service => {
+    //                 return {
+    //                     id: service?.id,
+    //                     name: service?.name,
+    //                     price: service?.cost,
+    //                     duration: service?.duration,
+    //                     durationString: service?.duration_string,
+    //                     image: service?.icon?.value,
+    //                 }
+    //             })
+    //         } 
+    //         return data;
+    //     })
+    //     return recordData.sort((a, b) => a.id.localeCompare(b.id));;
+    // }
+
     async newRecord(companyId: string, recordInfo: RequestRecordDto): Promise<any> {
-        let recordType = 'normal';
-        let timeReservation;
-        const cookieName = await this.dikidiService.getCookie();
-        console.log('COOKIE_NAME - ' + cookieName);
-        const cookie = process.env.COOKIE + cookieName; 
-        if(recordInfo.masters.length == 1 && recordInfo.masters[0].serviceId.length == 1){
-            timeReservation =  await this.dikidiService.timeReservation(cookie, companyId, recordInfo.masters[0].masterId, recordInfo.masters[0].serviceId, recordInfo.time);
-            if(timeReservation?.error)
-                return {error: timeReservation?.message};
-        } else{
-            recordType = 'multi';
-            timeReservation =  await this.dikidiService.timeReservationMulti(cookie, companyId, recordInfo.masters, recordInfo.time);
-            if(timeReservation?.error?.code !== 0)
-                return {error: timeReservation.error?.message};
-        }
+        const check = await this.yciletnService.check(companyId, recordInfo.masters[0].masterId, recordInfo.time, recordInfo.masters[0].serviceId);
+        if(check.status != 201) return check;
+        const record =  await this.yciletnService.record(companyId, recordInfo.phone, recordInfo.firstName, recordInfo.masters[0].masterId, recordInfo.time, recordInfo.masters[0].serviceId, recordInfo.comment);
+        return record;
+        // if(record?.error)
+        //     return {error: record?.message};
 
-        const check = await this.dikidiService.check(cookie, recordType, companyId, recordInfo.phone, recordInfo.firstName, recordInfo.comment);;
-
-        const record =  await this.dikidiService.record(cookie, recordType, companyId, recordInfo.phone, recordInfo.firstName, recordInfo.comment);
-
-        if(record?.error)
-            return {error: record?.message};
-
-        const recordData : ResponseNewRecordDto[] = record?.bookings?.map(item => {
-            const data: ResponseNewRecordDto = {
-                id: item?.id,
-                time: item?.time,
-                timeTo: item?.time_to,
-                price: item?.cost,
-                duration: item?.duration,
-                durationString: item?.duration_string,
-                // currency: {
-                //     id: item?.currency?.id,
-                //     title: item?.currency?.title,
-                //     abbr: item?.currency?.abbr,
-                //     iso: item?.currency?.iso,
-                // },
-                client: {
-                    name: recordInfo?.firstName,
-                    phone: recordInfo?.phone,
-                    comment: recordInfo?.comment,
-                },
-                master: {
-                    id: item?.employees[0]?.id,
-                    name: item?.employees[0]?.username,
-                    image: item?.employees[0]?.image,
-                },
-                services: item?.services?.map(service => {
-                    return {
-                        id: service?.id,
-                        name: service?.name,
-                        price: service?.cost,
-                        duration: service?.duration,
-                        durationString: service?.duration_string,
-                        image: service?.icon?.value,
-                    }
-                })
-            } 
-            return data;
-        })
-        return recordData.sort((a, b) => a.id.localeCompare(b.id));;
+        // const recordData : ResponseNewRecordDto[] = record?.bookings?.map(item => {
+        //     const data: ResponseNewRecordDto = {
+        //         id: item?.id,
+        //         time: item?.time,
+        //         timeTo: item?.time_to,
+        //         price: item?.cost,
+        //         duration: item?.duration,
+        //         durationString: item?.duration_string,
+        //         // currency: {
+        //         //     id: item?.currency?.id,
+        //         //     title: item?.currency?.title,
+        //         //     abbr: item?.currency?.abbr,
+        //         //     iso: item?.currency?.iso,
+        //         // },
+        //         client: {
+        //             name: recordInfo?.firstName,
+        //             phone: recordInfo?.phone,
+        //             comment: recordInfo?.comment,
+        //         },
+        //         master: {
+        //             id: item?.employees[0]?.id,
+        //             name: item?.employees[0]?.username,
+        //             image: item?.employees[0]?.image,
+        //         },
+        //         services: item?.services?.map(service => {
+        //             return {
+        //                 id: service?.id,
+        //                 name: service?.name,
+        //                 price: service?.cost,
+        //                 duration: service?.duration,
+        //                 durationString: service?.duration_string,
+        //                 image: service?.icon?.value,
+        //             }
+        //         })
+        //     } 
+        //     return data;
+        // })
+        // return recordData.sort((a, b) => a.id.localeCompare(b.id));;
     }
 
     async removeRecord(recordId: string): Promise<any> {

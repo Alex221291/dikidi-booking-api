@@ -22,6 +22,7 @@ export interface ServiceDateTimes {
     name?: string;
     image?: string;
     time?: number;
-    price?: number;
+    priceMin?: number;
+    priceMax?: number;
 }
 

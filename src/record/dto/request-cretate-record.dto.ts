@@ -6,4 +6,5 @@ export class RequestCreateRecordDto {
     clientName: string;
     clientPhone: string;
     dkdDate: string;
+    recordInfo?: string;
 }

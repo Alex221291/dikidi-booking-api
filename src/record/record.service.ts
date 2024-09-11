@@ -11,7 +11,19 @@ export class RecordService {
     ) {}
 
     async create(data: RequestCreateRecordDto): Promise<any> {
-        const record =  await this.prisma.record.create({data});
+        console.log(data)
+        const record = await this.prisma.record.create({
+            data: {
+              clientId: data.clientId,
+              dkdRecordId: data.dkdRecordId,
+              dkdDate: data.dkdDate,
+              clientName: data.clientName,
+              clientPhone: data.clientPhone,
+              clientComment: data.clientComment,
+              ycRecordData:  JSON.parse(data.recordInfo),
+              staffId: data.staffId,
+            }
+          });
         return record;
     }
 
