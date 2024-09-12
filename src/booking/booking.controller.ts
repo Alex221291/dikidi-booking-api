@@ -222,33 +222,6 @@ ${clientDataText}`;
         }
     }
 
-    // @Get('new-record/time-reservation')
-    // async timeReservation(@Query('masterId') masterId: string, @Query('serviceId') serviceId: string[], @Query('time') time: string): Promise<any> {
-    //     const result =  await this.bookingService.timeReservation(user.dkdCompanyId, masterId, serviceId, time);
-    //     return result;
-    // }
-
-    @UseGuards(JwtAuthGuard)
-    @Get('new-record/records-info')
-    async recordsInfo(@User() user: UserPayloadDto, @Query('recordId') recordId: string[]): Promise<any> {
-        const result =  await this.bookingService.recordInfo(user.dkdCompanyId, recordId);
-        return result;
-    }
-
-    @UseGuards(JwtAuthGuard)
-    @Delete('remove')
-    async removeRecord(@User() user: UserPayloadDto, @Query('recordId') recordId: string, cookie: string): Promise<any> {
-        const result =  await this.bookingService.removeRecord(recordId);
-        return result;
-    }
-
-    @UseGuards(JwtAuthGuard)
-    @Put('reschedule')
-    async rescheduleRecord(@User() user: UserPayloadDto, @Query('recordId') recordId: string): Promise<any> {
-        const result =  await this.bookingService.rescheduleRecord(recordId);
-        return result;
-    }
-
     async dateFormat(time: string, duration: number): Promise<string> {
         const start = dayjs(time).locale('ru');
         const end = dayjs(time).add(duration, 'minutes').locale('ru');
