@@ -26,6 +26,13 @@ export class TelegramBotService extends Telegraf {
       const userName = ctx.from.username;
       const botId = ctx.botInfo.id;
       const botName = ctx.botInfo.first_name;
+      const miniAppButton = {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: 'Открыть приложение', web_app: { url: process.env.TELEGRAM_APP_URL } }]
+          ]
+        }
+      };
       const salon = await this.prisma.salon.findFirst({
         where: {tgBotId: botId},
       });
@@ -39,7 +46,7 @@ export class TelegramBotService extends Telegraf {
       });
 
       if(user) {
-        await ctx.reply('Привет. Ты уже с нами.\nЗапишись на услугу!');
+        await ctx.reply('Привет. Ты уже с нами.\nЗапишись на услугу!', miniAppButton);
         return;
       }
       // проверяем, если нет то создаём
@@ -55,7 +62,7 @@ export class TelegramBotService extends Telegraf {
 
       console.log(newUser);
     
-      await ctx.reply('Привет. Запишись на услугу!');
+      await ctx.reply('Привет. Запишись на услугу!', miniAppButton);
     }
 
     @Command('stop')
