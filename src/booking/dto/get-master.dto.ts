@@ -5,11 +5,5 @@ export interface GetMasterDto {
     image?: string;
     rating?: string;
     seanceDate?: string;
-    futureRecordingInfo?: FutureRecordingInfo;
-}
-
-export interface FutureRecordingInfo {
-    totalDuration?: number;
-    totalPrice?: number;
 }
 

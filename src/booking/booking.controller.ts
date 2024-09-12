@@ -146,17 +146,17 @@ export class BookingController {
             clientStaffId = newClient.id;
         }
 
-        // получить инфу о салоне
         const salon = await this.salonService.getOne(user.salonId);
         try{
-            if(salon)
-            {
                 // получить chatId клиента - отправить сообщение
                 const clientUser = await this.clientService.getClientUser(user.userId, clientStaffId);
+                const totalPriceText = 
+                body.recordInfo.totalTimePriceInfo?.totalPriceMin === body.recordInfo?.totalTimePriceInfo?.totalPriceMax 
+                ? `${body.recordInfo?.totalTimePriceInfo?.totalPriceMax}` : `${body.recordInfo?.totalTimePriceInfo?.totalPriceMin} - ${body.recordInfo?.totalTimePriceInfo?.totalPriceMax}`;
                 const clientDataText = `клиент - ${body.firstName}(${body.phone})
 Комментарий: ${body?.comment}`;
 
-                const masterUser = await this.staffService.getMasterUser(body.recordInfo.master.id);
+                const masterUser = await this.staffService.getMasterUser(body.recordInfo.id);
                 // добавить инфу о записи в бд
                 const newRecord = await this.recordService.create({
                     clientId: clientStaffId,
@@ -169,15 +169,15 @@ export class BookingController {
                     recordInfo: JSON.stringify(body.recordInfo),
                 }); 
 
-                const recordMainText = `${await this.dateFormat(body.recordInfo?.time, body.recordInfo?.duration)}
+                const recordMainText = `${await this.dateFormat(body.time, body.recordInfo?.totalTimePriceInfo?.totalDuration)}
 
 ${body.recordInfo.services?.map(service => service.name).join('\n')}
                     
-${body.recordInfo?.price} ${body?.recordInfo?.currency}`;
+${totalPriceText} ${body?.recordInfo?.currency}`;
                     const clientText = `Вы записались!
 Онлайн-запись является равнозначной записи по телефону и не требует подтверждения
 
-мастер - ${body.recordInfo?.master.name}
+мастер - ${body.recordInfo?.name}
 ${recordMainText}`;
 
                 await this.telegramChatService.sendMessage(salon.tgToken, clientUser.tgChatId.toString(), clientText);
@@ -195,7 +195,7 @@ ${clientDataText}`;
                 const administratorsUser = await this.staffService.getSalonAdministratorsUser(salon.id);
                 const administratorText = `Новая запись!
 
-мастер - ${body.recordInfo?.master.name}
+мастер - ${body.recordInfo?.name}
 
 ${recordMainText}
                     
@@ -207,15 +207,14 @@ ${clientDataText}`;
                 return {
                     recordId: newRecord.id,
                     ycRecordId: result?.data?.data[0]?.record_id.toString(),
+                    clientName: body?.firstName,
+                    clientPhone: body?.phone,
+                    clientComment: body?.comment,
+                    datetime: body?.time,
+                    master: body?.recordInfo,
                     ycRecordHash: result?.data?.data[0]?.record_hash,
                     message: 'Запись создана'
                 };
-            }
-            return {
-                ycRecordId: result?.data?.data[0]?.record_id.toString(),
-                ycRecordHash: result?.data?.data[0]?.record_hash,
-                message: 'Запись создана'
-            };
         }
         catch(e){
             console.log(e);
@@ -228,20 +227,6 @@ ${clientDataText}`;
     //     const result =  await this.bookingService.timeReservation(user.dkdCompanyId, masterId, serviceId, time);
     //     return result;
     // }
-
-    @UseGuards(JwtAuthGuard)
-    @Post('new-record/check')
-    async check(@User() user: UserPayloadDto, @Query('phone') phone: string, @Query('firstName') firstName: string, @Query('comment') comment?: string): Promise<any> {
-        const result =  await this.bookingService.check(user.dkdCompanyId, phone, firstName, comment);
-        return result;
-    }
-
-    @UseGuards(JwtAuthGuard)
-    @Post('new-record/record')
-    async record(@User() user: UserPayloadDto, @Query('phone') phone: string, @Query('firstName') firstName: string, @Query('comment') comment?: string): Promise<any> {
-        const result =  await this.bookingService.record(user.dkdCompanyId, phone, firstName, comment);
-        return result;
-    }
 
     @UseGuards(JwtAuthGuard)
     @Get('new-record/records-info')

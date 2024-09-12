@@ -6,16 +6,18 @@ export interface GetMasterFullInfoDto {
     image?: string;
     rating?: string;
     seanceDate?: string;
-    gallery?: Gallery[];
-    services?: ServiceDateTimes[];
+    services?: MasterServiceInfo[];
+    totalTimePriceInfo?: TotalTimePriceInfo;
+    currency?: string;
 }
 
-export interface Gallery{
-    big?: string,
-    zoom?: string,
+export interface TotalTimePriceInfo {
+    totalDuration?: number;
+    totalPriceMin?: number;
+    totalPriceMax?: number;
 }
 
-export interface ServiceDateTimes {
+export interface MasterServiceInfo {
     id?: string;
     name?: string;
     image?: string;
