@@ -35,7 +35,10 @@ async function bootstrap() {
   //   "preflightContinue": false,
   //   "optionsSuccessStatus": 200
   // });
-  app.enableCors();
+  app.enableCors({
+    origin: process.env.HOST_NAME,
+    credentials: true,
+  });
   app.useGlobalInterceptors(new HeaderInterceptor());
 
   app.useGlobalInterceptors(new LoggingInterceptor());
