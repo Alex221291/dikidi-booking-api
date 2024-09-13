@@ -1,9 +1,10 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Request, Query, HttpException } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Request, Query, HttpException, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { User } from './user.decorator';
 import { RequestAuthDto } from './dto/request-auth.dto';
 import { UserPayloadDto } from './dto/user-payload.dto';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -11,12 +12,16 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() data: RequestAuthDto) {
+  async login(@Body() data: RequestAuthDto, @Res({ passthrough: true }) response: Response) {
     const result = await this.authService.login(data);
     if (result?.error) {
       throw new HttpException(result, HttpStatus.BAD_REQUEST);
-  }
-    return result;
+    }
+    response.cookie('jwt', result.token, { httpOnly: true });
+    return {
+      role: result.role,
+      message: 'Авторизация прошла успешно!'
+    };
   }
 
   @HttpCode(HttpStatus.CREATED)
