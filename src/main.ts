@@ -36,7 +36,7 @@ async function bootstrap() {
   //   "optionsSuccessStatus": 200
   // });
   app.enableCors({
-    origin: process.env.HOST_NAME,
+    origin: [process.env.LOCAL_HOST_NAME, process.env.DEV_HOST_NAME],
     credentials: true,
   });
   app.useGlobalInterceptors(new HeaderInterceptor());
