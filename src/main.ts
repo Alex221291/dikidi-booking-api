@@ -8,33 +8,14 @@ import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   const PORT = process.env.PORT || 5000;
   const app = await NestFactory.create(AppModule);
-
+  
   app.setGlobalPrefix('api');
 
   app.use(cookieParser());
-  
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true, // Включите автоматическое преобразование
-    }),
-  );
 
-  // app.enableCors({
-  //   "origin": process.env.HOST_NAME,
-  //   "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
-  //   "allowedHeaders": 'Content-Type, Accept',
-  //   "preflightContinue": false,
-  //   "optionsSuccessStatus": 200
-  //  });
+  console.log('LOCAL_HOST_NAME:', process.env.LOCAL_HOST_NAME);
+console.log('DEV_HOST_NAME:', process.env.DEV_HOST_NAME);
 
-  //  app.enableCors({
-  //   "origin": process.env.HOST_NAME,
-  //   "methods": 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  //   "allowedHeaders": '*',
-  //   "credentials": true,
-  //   "preflightContinue": false,
-  //   "optionsSuccessStatus": 200
-  // });
   app.enableCors({
     origin: [process.env.LOCAL_HOST_NAME, process.env.DEV_HOST_NAME],
     credentials: true,
@@ -43,14 +24,14 @@ async function bootstrap() {
   app.use((req, res, next) => {
     const allowedOrigins = [process.env.LOCAL_HOST_NAME, process.env.DEV_HOST_NAME];
     const origin = req.headers.origin;
-  
+    console.log('========= ' + origin)
     if (allowedOrigins.includes(origin)) {
       res.header('Access-Control-Allow-Origin', origin);
     }
   
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie');
   
     if (req.method === 'OPTIONS') {
       return res.sendStatus(200);
@@ -58,6 +39,12 @@ async function bootstrap() {
   
     next();
   });
+  
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true, // Включите автоматическое преобразование
+    }),
+  );
   
   app.useGlobalInterceptors(new HeaderInterceptor());
 
