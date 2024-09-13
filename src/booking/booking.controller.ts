@@ -133,9 +133,9 @@ export class BookingController {
         if (result?.status != 201) {
             throw new HttpException({message: result.data?.meta?.message}, HttpStatus.BAD_REQUEST);
         }
-        let clientStaffId = user.clientStaffId;
+        let clientId = user.clientId;
         //добавить клиента если первый заказ
-        if(!user.clientStaffId)
+        if(!user.clientId)
         {
             const newClient = await this.clientService.create(
                 {
@@ -143,13 +143,13 @@ export class BookingController {
                     phone: body.phone,
                     userId: user.userId
             });
-            clientStaffId = newClient.id;
+            clientId = newClient.id;
         }
 
         const salon = await this.salonService.getOne(user.salonId);
         try{
                 // получить chatId клиента - отправить сообщение
-                const clientUser = await this.clientService.getClientUser(user.userId, clientStaffId);
+                const clientUser = await this.clientService.getClientUser(user.userId, clientId);
                 const totalPriceText = 
                 body.recordInfo.totalTimePriceInfo?.totalPriceMin === body.recordInfo?.totalTimePriceInfo?.totalPriceMax 
                 ? `${body.recordInfo?.totalTimePriceInfo?.totalPriceMax}` : `${body.recordInfo?.totalTimePriceInfo?.totalPriceMin} - ${body.recordInfo?.totalTimePriceInfo?.totalPriceMax}`;
@@ -159,7 +159,7 @@ export class BookingController {
                 const masterUser = await this.staffService.getMasterUser(body.recordInfo.id);
                 // добавить инфу о записи в бд
                 const newRecord = await this.recordService.create({
-                    clientId: clientStaffId,
+                    clientId: clientId,
                     dkdRecordId: result?.data?.data[0]?.record_id.toString(),
                     staffId: masterUser?.userId,
                     dkdDate: new Date(body?.time).toISOString(),

@@ -82,7 +82,7 @@ export class RecordService {
         };
     }
 
-    async GetRecordsDatesTrue(companyId: string, dateFrom: string, dateTo: string): Promise<string[]> {
+    async GetRecordsDatesTrue(companyId: string, clientId: string, dateFrom: string, dateTo: string): Promise<string[]> {
         // Добавляем один день к dateTo
         const adjustedDateTo = new Date(dateTo);
         adjustedDateTo.setDate(adjustedDateTo.getDate() + 1);
@@ -93,6 +93,7 @@ export class RecordService {
               gte: new Date(dateFrom),
               lt: adjustedDateTo, // Используем lt для включения dateTo
             },
+            clientId: clientId,
           },
           select: {
             dkdDate: true,

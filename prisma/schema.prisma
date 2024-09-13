@@ -32,12 +32,15 @@ model User {
   tgUserId    BigInt
   tgUserName    String?
   tgChatId    BigInt
-  userId    String? @db.Uuid
   role    UserRoles
   salon    Salon?    @relation(fields: [salonId], references: [id])
   salonId  String? @db.Uuid
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  client    Client? @relation(fields: [clientId], references: [id])
+  clientId  String? @db.Uuid @unique
+  staff     Staff?  @relation(fields: [staffId], references: [id])
+  staffId   String? @db.Uuid @unique
   @@map("users")
 }
 
@@ -47,6 +50,7 @@ model Client {
   phone    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User?
   rewiers Review[]
   records Record[]
   @@map("clients")
@@ -57,6 +61,7 @@ model Staff {
   dkdMasterId    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User?
   rewiers Review[]
   records Record[]
   contacts StaffContact[]

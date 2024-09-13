@@ -43,7 +43,8 @@ export class AuthService {
       const payload: UserPayloadDto = { 
         salonId: user.salonId,
         userId: user.id,
-        clientStaffId: user.userId || null,
+        clientId: user.clientId || null,
+        staffId: user.staffId || null,
         dkdCompanyId: currentSalon.dkdCompanyId, 
         roles: [user.role]
       };
