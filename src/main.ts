@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { LoggingInterceptor } from './logger/logging.interceptor';
 import { HeaderInterceptor } from './interceptors/header.interceptor';
 import * as cookieParser from 'cookie-parser';
+import { all } from 'axios';
 
 async function bootstrap() {
   const PORT = process.env.PORT || 5000;
@@ -24,8 +25,10 @@ console.log('DEV_HOST_NAME:', process.env.DEV_HOST_NAME);
   app.use((req, res, next) => {
     const allowedOrigins = [process.env.LOCAL_HOST_NAME, process.env.DEV_HOST_NAME];
     const origin = req.headers.origin;
-    console.log('========= ' + origin)
+    console.log(allowedOrigins);
+    console.log('========= ' + origin);
     if (allowedOrigins.includes(origin)) {
+      console.log('=========true= ' + origin);
       res.header('Access-Control-Allow-Origin', origin);
     }
   
