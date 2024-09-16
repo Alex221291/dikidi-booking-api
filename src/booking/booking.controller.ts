@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, ParseArrayPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, ParseArrayPipe, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { GetCompanyDto } from './dto/get-company.dto';
 import { GetMasterDto } from './dto/get-master.dto';
@@ -22,7 +22,7 @@ import 'dayjs/locale/ru';
 import { RecordService } from 'src/record/record.service';
 import { GetMasterFullInfoDto } from './dto/get-master-full-info.dto';
 import { ResponseNewRecordDto } from './dto/response-new-record.dto';
-import { MessageChannel } from 'worker_threads';
+import { Request } from 'express';
 
 dayjs.extend(localizedFormat);
 
@@ -73,7 +73,8 @@ export class BookingController {
     //@UseGuards(JwtAuthGuard, RolesGuard)
     @UseGuards(JwtAuthGuard)
     @Get('company')
-    async getCompany(@User() user: UserPayloadDto): Promise<GetCompanyDto | null> {
+    async getCompany(@User() user: UserPayloadDto, @Req() req: Request): Promise<GetCompanyDto | null> {
+        console.log('controller - ' + req.cookies.jwt);
         return await this.bookingService.getCompany(user.dkdCompanyId);
     }
 
