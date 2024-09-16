@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-const crypto = require('crypto');
 const { URLSearchParams } = require('url');
 import { validate } from '@telegram-apps/init-data-node';
 import { RequestAuthDto } from './dto/request-auth.dto';
 import { UserPayloadDto } from './dto/user-payload.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { roleMapping } from './constants/roles.const';
 
 @Injectable()
 export class AuthService {
@@ -49,7 +49,7 @@ export class AuthService {
         roles: [user.role]
       };
       return {
-        role: user.role,
+        role: roleMapping[user.role],
         token: this.jwtService.sign(payload),
       };
     } catch (e) {
