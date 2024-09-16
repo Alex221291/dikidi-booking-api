@@ -9,6 +9,7 @@ export class HeaderInterceptor implements NestInterceptor {
     const allowedOrigins = [process.env.LOCAL_HOST_NAME, process.env.DEV_HOST_NAME];
     const origin = req.headers.origin;
 
+    console.log(req.cookie?.jwt);
     if (res && typeof res.setHeader === 'function') {
       if (origin && allowedOrigins.includes(origin)) {
         console.log('host - ' + origin);
@@ -22,7 +23,8 @@ export class HeaderInterceptor implements NestInterceptor {
     }
 
     if (req.method === 'OPTIONS') {
-      return res.sendStatus(200);
+      res.sendStatus(200);
+      return; // Завершаем обработку запроса
     }
 
     return next.handle();
