@@ -91,7 +91,7 @@ export class BookingController {
 
     @UseGuards(JwtAuthGuard)
     @Get('get-masters-multi')
-    async getMastersMulti(@User() user: UserPayloadDto, @Query('serviceId') serviceId: string[]): Promise<GetMasterDto[]> {
+    async getMastersMulti(@User() user: UserPayloadDto, @Query('serviceId') serviceId: string[]): Promise<GetMasterFullInfoDto[]> {
         const result =  await this.bookingService.getMastersMulti(user.dkdCompanyId, serviceId);
         return result;
     }
