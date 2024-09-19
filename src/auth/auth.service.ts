@@ -17,11 +17,12 @@ export class AuthService {
   async login(data: RequestAuthDto) : Promise<any> {
    try{
       const salons = await this.prisma.salon.findMany();
+      console.log(salons);
       let currentSalon;
+      console.log(data)
       for (let item of salons) {
         try{
-          console.log(data)
-          validate(data.initDataRaw, item.tgToken, {expiresIn: 36000000000});
+          validate(data.initDataRaw, item.tgToken, { expiresIn: 0 });
           currentSalon = item;
         } catch (e) {
           console.log(e.message)

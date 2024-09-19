@@ -13,25 +13,3 @@ export interface RequestMasterServicesRecordDto {
     masterId: string;
     serviceId: string[];
 }
-
-export interface RequestRecordInfo {
-    time?: string;
-    price?: number;
-    duration?: number;
-    currency?: string;
-    master?: MasterRecordInfo;
-    services?: ServiceRecordInfo[];
-}
-
-export interface MasterRecordInfo {
-    id?: string;
-    name?: string;
-    image?: string;
-}
-
-export interface ServiceRecordInfo {
-    id?: string;
-    name?: string;
-    image?: string;
-}
-

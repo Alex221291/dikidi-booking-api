@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RequestCreateRecordDto } from './dto/request-cretate-record.dto';
 import { DikidiService } from 'src/dikidi/dikidi.service';
-import { ResponseGetRecordFullInfoDto } from './dto/response-get-record-short-info.dto';
+import { ResponseGetRecordFullInfoDto } from './dto/response-get-record-full-info.dto';
 import { GetMasterFullInfoDto } from 'src/booking/dto/get-master-full-info.dto';
-import { ResponseGetRecordShortInfoDto } from './dto/response-get-record-full-info.dto';
+import { ResponseGetRecordShortInfoDto } from './dto/response-get-record-short-info.dto';
 
 @Injectable()
 export class RecordService {

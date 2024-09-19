@@ -4,8 +4,8 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserPayloadDto } from 'src/auth/dto/user-payload.dto';
 import { User } from 'src/auth/user.decorator';
 import dayjs from 'dayjs';
-import { ResponseGetRecordShortInfoDto } from './dto/response-get-record-full-info.dto';
-import { ResponseGetRecordFullInfoDto } from './dto/response-get-record-short-info.dto';
+import { ResponseGetRecordShortInfoDto } from './dto/response-get-record-short-info.dto';
+import { ResponseGetRecordFullInfoDto } from './dto/response-get-record-full-info.dto';
 
 @Controller('record')
 export class RecordController {

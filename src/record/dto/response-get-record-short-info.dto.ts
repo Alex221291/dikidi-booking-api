@@ -1,11 +1,15 @@
-import { GetMasterFullInfoDto } from "src/booking/dto/get-master-full-info.dto";
-
-export class ResponseGetRecordFullInfoDto {
-    id: string;
-    ycRecordId: string;
+export class ResponseGetRecordShortInfoDto {
+    id?: string;
+    ycRecordId?: string;
     clientName?: string;
     clientPhone?: string;
     clientComment?: string;
     datetime?: string;
-    master?: GetMasterFullInfoDto;
+    duration?: number;
+    masterName?: string;
+    masterImage?: string;
+    servicesName: string[];
+    currency?: string;
+    totalPriceMin?:number;
+    totalPriceMax?:number;
 }

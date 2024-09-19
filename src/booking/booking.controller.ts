@@ -23,6 +23,7 @@ import { RecordService } from 'src/record/record.service';
 import { GetMasterFullInfoDto } from './dto/get-master-full-info.dto';
 import { ResponseNewRecordDto } from './dto/response-new-record.dto';
 import { MessageChannel } from 'worker_threads';
+import { ResponseGetRecordFullInfoDto } from 'src/record/dto/response-get-record-full-info.dto';
 
 dayjs.extend(localizedFormat);
 
@@ -127,7 +128,7 @@ export class BookingController {
 
     @UseGuards(JwtAuthGuard)
     @Post('new-record')
-    async newRecord(@User() user: UserPayloadDto, @Body() body: RequestRecordDto): Promise<ResponseNewRecordDto> {
+    async newRecord(@User() user: UserPayloadDto, @Body() body: RequestRecordDto): Promise<ResponseGetRecordFullInfoDto> {
         const result =  await this.bookingService.newRecord(user.dkdCompanyId, body);
         //return {status: result?.status, data: result?.data};
         if (result?.status != 201) {
@@ -203,9 +204,9 @@ ${clientDataText}`;
                 for(const administrator of administratorsUser){
                     await this.telegramChatService.sendMessage(salon.tgToken, administrator?.tgChatId.toString(), administratorText);
                 }
-
+                let recordInfo = await this.recordService.getById(user.dkdCompanyId, newRecord.id);
                 return {
-                    recordId: newRecord.id,
+                    id: newRecord.id,
                     ycRecordId: result?.data?.data[0]?.record_id.toString(),
                     clientName: body?.firstName,
                     clientPhone: body?.phone,
