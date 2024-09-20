@@ -94,6 +94,7 @@ model Record {
   clientPhone    String?
   clientComment    String?
   dkdDate    DateTime?
+  ycRecordHash  String?
   ycRecordData  Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

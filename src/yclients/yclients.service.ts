@@ -138,31 +138,47 @@ export class YclientsService {
          return result;
     }
 
-    async recordsInfo(companyId: string, recordIdList: string[]): Promise<any> {
-        const params = {
-            company_id: companyId,
-            //session: session,
-            record_id_list: recordIdList
-        };
-
-        const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/ru/mobile/ajax/newrecord/records_info/`,
-            {params}
-        )
-            .pipe(
-                map(response => response.data)));
-        return data
+    async recordsInfo(companyId: string, recordId: string, recordHash: string): Promise<any> {
+        const result = lastValueFrom(this.httpService.get(`https://api.yclients.com/api/v1/book_record/${companyId}/${recordId}/${recordHash}`,
+            {
+                headers: this.ycHeaders,
+                validateStatus: function (status) {
+                    return status < 500; // Разрешить все коды состояния, кроме 5xx
+                }},
+        ));
+        return result;
     }
 
-    async removeRecord(recordId: string): Promise<any> {
-        const params = {
-            id: recordId
+    async recordTransfer(companyId: string, recordId: string, recordHash: string, datetime: string, comment?: string): Promise<any> {
+        const body = {
+            datetime: datetime,
+            comment: comment,
         };
 
-        const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/ru/mobile/newrecord/remove_record/`,
-            {params}
-        )
-            .pipe(
-                map(response => response.data)));
-        return data
+        const result = lastValueFrom(this.httpService.put(`https://api.yclients.com/api/v1/book_record/${companyId}/${recordId}/${recordHash}`,
+            body,
+            {
+                headers: this.ycHeaders,
+                validateStatus: function (status) {
+                    return status < 500; // Разрешить все коды состояния, кроме 5xx
+                }},
+        ));
+        const awaitres = await result;
+        console.log(awaitres.status);
+        console.log(awaitres.data);
+        return result;
+    }
+
+
+    async removeRecord(companyId: string, recordId: string, recordHash: string): Promise<any> {
+        const result = lastValueFrom(this.httpService.delete(`https://yclients.com/api/v1/user/records/${recordId}/${recordHash}`,
+            {
+                headers: this.ycHeaders,
+                validateStatus: function (status) {
+                    return status < 500; // Разрешить все коды состояния, кроме 5xx
+                }
+            },
+        ));
+        return result;
     }
 }

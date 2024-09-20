@@ -1,5 +1,6 @@
 export class RequestCreateRecordDto {
     dkdRecordId: string;
+    ycRecordHash?: string;
     clientId: string;
     staffId: string;
     clientComment?: string;

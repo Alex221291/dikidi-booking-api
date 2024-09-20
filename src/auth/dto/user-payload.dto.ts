@@ -7,4 +7,5 @@ export class UserPayloadDto {
     staffId?: string;
     dkdCompanyId: string;
     roles: $Enums.UserRoles[];
+    currency?: string;
 }

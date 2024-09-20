@@ -5,6 +5,8 @@ import { DikidiService } from 'src/dikidi/dikidi.service';
 import { ResponseGetRecordFullInfoDto } from './dto/response-get-record-full-info.dto';
 import { GetMasterFullInfoDto } from 'src/booking/dto/get-master-full-info.dto';
 import { ResponseGetRecordShortInfoDto } from './dto/response-get-record-short-info.dto';
+import { RequestUpdateRecordDto } from './dto/request-update-record.dto';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class RecordService {
@@ -19,6 +21,7 @@ export class RecordService {
             data: {
               clientId: data.clientId,
               dkdRecordId: data.dkdRecordId,
+              ycRecordHash: data?.ycRecordHash,
               dkdDate: data.dkdDate,
               clientName: data.clientName,
               clientPhone: data.clientPhone,
@@ -56,7 +59,7 @@ export class RecordService {
                 clientName: item?.clientName,
                 clientPhone: item?.clientPhone,
                 clientComment: item?.clientComment,
-                datetime: item?.dkdDate.toISOString().slice(0, 16).replace('T', ' '),
+                datetime: dayjs(item?.dkdDate).format('YYYY-MM-DD HH:mm'),
                 duration: recordIndo?.totalTimePriceInfo?.totalDuration,
                 masterName: recordIndo?.name,
                 masterImage: recordIndo?.image,
@@ -74,10 +77,11 @@ export class RecordService {
         return {
             id: result?.id,
             ycRecordId: result?.dkdRecordId,
+            ycRecordHash: result?.ycRecordHash,
             clientName: result?.clientName,
             clientPhone: result?.clientPhone,
             clientComment: result?.clientComment,
-            datetime: result?.dkdDate.toISOString().slice(0, 16).replace('T', ' '),
+            datetime: dayjs(result?.dkdDate).format('YYYY-MM-DD HH:mm'),
             master: result?.ycRecordData as GetMasterFullInfoDto,
         };
     }
@@ -120,5 +124,31 @@ export class RecordService {
                   ],
             });
         return record;
+    }
+
+    async update(companyId: string, data: RequestUpdateRecordDto): Promise<any> {
+      const result = await this.prisma.record.findUnique({where: {id: data.id}});
+      if(!result) return null;
+      const record = await this.prisma.record.update({where:{id: result.id},
+          data: {
+            dkdDate: new Date(data.datetime).toISOString(),
+            clientComment: data.comment,
+          }
+        });
+      return {
+        id: record?.id,
+        ycRecordId: record?.dkdRecordId,
+        ycRecordHash: record?.ycRecordHash,
+        clientName: record?.clientName,
+        clientPhone: record?.clientPhone,
+        clientComment: record?.clientComment,
+        datetime: dayjs(record?.dkdDate).format('YYYY-MM-DD HH:mm'),
+        master: record?.ycRecordData as GetMasterFullInfoDto,
+      };
+    }
+
+    async remove(companyId: string, recordId: string): Promise<any> {
+      const result = await this.prisma.record.delete({where: {id: recordId}});
+      return result;
     }
 }

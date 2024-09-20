@@ -13,5 +13,6 @@ import { YclientsModule } from 'src/yclients/yclients.module';
   imports: [DikidiModule, SalonModule, ClientModule, StaffModule, TelegramModule, RecordModule, YclientsModule],
   providers: [BookingService],
   controllers: [BookingController],
+  exports: [BookingService]
 })
 export class BookingModule {}

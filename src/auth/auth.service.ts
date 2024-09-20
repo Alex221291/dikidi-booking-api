@@ -6,12 +6,14 @@ import { RequestAuthDto } from './dto/request-auth.dto';
 import { UserPayloadDto } from './dto/user-payload.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { roleMapping } from './constants/roles.const';
+import { BookingService } from 'src/booking/booking.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
-    private jwtService: JwtService,
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+    private readonly bookingService: BookingService,
   ) {}
 
   async login(data: RequestAuthDto) : Promise<any> {
@@ -41,12 +43,14 @@ export class AuthService {
       const user = await this.prisma.user.findFirst({
         where: {tgUserId: data.user.id, salonId: currentSalon.id},
       });
+      const company = await this.bookingService.getCompany(currentSalon.dkdCompanyId);
       const payload: UserPayloadDto = { 
         salonId: user.salonId,
         userId: user.id,
         clientId: user.clientId || null,
         staffId: user.staffId || null,
-        dkdCompanyId: currentSalon.dkdCompanyId, 
+        dkdCompanyId: currentSalon.dkdCompanyId,
+        currency: company?.currencyShortTitle,
         roles: [user.role]
       };
       return {

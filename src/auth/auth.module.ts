@@ -7,6 +7,7 @@ import { JwtStrategy } from './jwt.strategy';
 //import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { PrismaModule } from 'src/prisma/prisma.module';
+import { BookingModule } from 'src/booking/booking.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
       }),
       inject: [ConfigService],
     }),
+    BookingModule
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],

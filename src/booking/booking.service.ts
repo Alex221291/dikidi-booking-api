@@ -11,11 +11,14 @@ import { RequestGetDatesTrueDto } from './dto/request-get-dates-true.dto';
 import { ResponseNewRecordDto } from './dto/response-new-record.dto';
 import * as dayjs from 'dayjs';
 import { YclientsService } from 'src/yclients/yclients.service';
+import { RecordService } from 'src/record/record.service';
+import { RequestUpdateRecordDto } from 'src/record/dto/request-update-record.dto';
 
 @Injectable()
 export class BookingService {
-    constructor(private dikidiService: DikidiService,
-        private yciletnService: YclientsService,
+    constructor(private readonly dikidiService: DikidiService,
+        private readonly yciletnService: YclientsService,
+        private readonly recordService: RecordService,
     )
     {}
 
@@ -223,46 +226,29 @@ export class BookingService {
         if(check.status != 201) return check;
         const record =  await this.yciletnService.record(companyId, recordInfo.phone, recordInfo.firstName, recordInfo.masters[0].masterId, recordInfo.time, recordInfo.masters[0].serviceId, recordInfo.comment);
         return record;
-        // if(record?.error)
-        //     return {error: record?.message};
+    }
 
-        // const recordData : ResponseNewRecordDto[] = record?.bookings?.map(item => {
-        //     const data: ResponseNewRecordDto = {
-        //         id: item?.id,
-        //         time: item?.time,
-        //         timeTo: item?.time_to,
-        //         price: item?.cost,
-        //         duration: item?.duration,
-        //         durationString: item?.duration_string,
-        //         // currency: {
-        //         //     id: item?.currency?.id,
-        //         //     title: item?.currency?.title,
-        //         //     abbr: item?.currency?.abbr,
-        //         //     iso: item?.currency?.iso,
-        //         // },
-        //         client: {
-        //             name: recordInfo?.firstName,
-        //             phone: recordInfo?.phone,
-        //             comment: recordInfo?.comment,
-        //         },
-        //         master: {
-        //             id: item?.employees[0]?.id,
-        //             name: item?.employees[0]?.username,
-        //             image: item?.employees[0]?.image,
-        //         },
-        //         services: item?.services?.map(service => {
-        //             return {
-        //                 id: service?.id,
-        //                 name: service?.name,
-        //                 price: service?.cost,
-        //                 duration: service?.duration,
-        //                 durationString: service?.duration_string,
-        //                 image: service?.icon?.value,
-        //             }
-        //         })
-        //     } 
-        //     return data;
-        // })
-        // return recordData.sort((a, b) => a.id.localeCompare(b.id));;
+    async removeRecord(companyId: string, recordId: string): Promise<any> {
+        const currentRecrodInfo = await this.recordService.getById(companyId, recordId);
+        if(!currentRecrodInfo) return {error: 'Запись не найдена'};
+
+        const removeRecordFromService = await this.yciletnService.removeRecord(companyId, currentRecrodInfo.ycRecordId, currentRecrodInfo.ycRecordHash);
+        console.log('delete yc status - ' + removeRecordFromService.status);
+        if(removeRecordFromService.status != 204) return {error: 'Ошибка удаления записи'};
+
+        const removeRecord =  await this.recordService.remove(companyId, currentRecrodInfo.id);
+        return currentRecrodInfo;
+    }
+
+    async transferRecord(companyId: string, data: RequestUpdateRecordDto): Promise<any> {
+        const currentRecrodInfo = await this.recordService.getById(companyId, data.id);
+        if(!currentRecrodInfo) return {error: 'Запись не найдена'};
+
+        const transferRecordFromService = await this.yciletnService.recordTransfer(companyId, currentRecrodInfo.ycRecordId, currentRecrodInfo.ycRecordHash, data.datetime, data?.comment);
+        console.log('transfer yc status - ' + transferRecordFromService.status);
+        if(transferRecordFromService.status != 200) return {error: 'Ошибка удаления записи'};
+
+        const updateRecors =  await this.recordService.update(companyId, data);
+        return updateRecors;
     }
 }
