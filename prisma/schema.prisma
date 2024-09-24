@@ -17,7 +17,7 @@ model Salon {
   id    String   @default(uuid()) @id @db.Uuid
   name    String
   description    String?
-  dkdCompanyId    String
+  extCompanyId    String
   tgBotId    BigInt
   tgBotName    String
   tgToken    String
@@ -58,7 +58,7 @@ model Client {
 
 model Staff {
   id    String   @default(uuid()) @id @db.Uuid
-  dkdMasterId    String?
+  extMasterId    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User?
@@ -85,7 +85,7 @@ model Review {
 
 model Record {
   id    String   @default(uuid()) @id @db.Uuid
-  dkdRecordId    String?
+  extRecordId    String?
   client    Client?    @relation(fields: [clientId], references: [id])
   clientId  String? @db.Uuid
   staff    Staff?    @relation(fields: [staffId], references: [id])
@@ -93,9 +93,9 @@ model Record {
   clientName    String?
   clientPhone    String?
   clientComment    String?
-  dkdDate    DateTime?
-  ycRecordHash  String?
-  ycRecordData  Json?
+  extDate    DateTime?
+  extRecordHash  String?
+  extRecordData  Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@map("records")

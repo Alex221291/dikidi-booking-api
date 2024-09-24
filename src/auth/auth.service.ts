@@ -43,13 +43,13 @@ export class AuthService {
       const user = await this.prisma.user.findFirst({
         where: {tgUserId: data.user.id, salonId: currentSalon.id},
       });
-      const company = await this.bookingService.getCompany(currentSalon.dkdCompanyId);
+      const company = await this.bookingService.getCompany(currentSalon.extCompanyId);
       const payload: UserPayloadDto = { 
         salonId: user.salonId,
         userId: user.id,
         clientId: user.clientId || null,
         staffId: user.staffId || null,
-        dkdCompanyId: currentSalon.dkdCompanyId,
+        extCompanyId: currentSalon.extCompanyId,
         currency: company?.currencyShortTitle,
         roles: [user.role]
       };

@@ -1,7 +1,7 @@
 export class RequestCreateSalonDto {
     name: string;
     description: string;
-    dkdCompanyId: string;
+    extCompanyId: string;
     tgBotId: number;
     tgBotName: string;
     tgToken: string;

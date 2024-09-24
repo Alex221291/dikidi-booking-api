@@ -20,13 +20,13 @@ export class RecordService {
         const record = await this.prisma.record.create({
             data: {
               clientId: data.clientId,
-              dkdRecordId: data.dkdRecordId,
-              ycRecordHash: data?.ycRecordHash,
-              dkdDate: data.dkdDate,
+              extRecordId: data.extRecordId,
+              extRecordHash: data?.extRecordHash,
+              extDate: data.extDate,
               clientName: data.clientName,
               clientPhone: data.clientPhone,
               clientComment: data.clientComment,
-              ycRecordData:  JSON.parse(data.recordInfo),
+              extRecordData:  JSON.parse(data.recordInfo),
               staffId: data.staffId,
             }
           });
@@ -41,25 +41,25 @@ export class RecordService {
         const result = await this.prisma.record.findMany({
             where: {
                 clientId: clientId,
-                dkdDate: {
+                extDate: {
                     gte: startDate,
                     lt: endDate,
                 },
             },
             orderBy: {
-                dkdDate: 'asc',
+                extDate: 'asc',
             },
         });
     
         return result.map(item => {
-            const recordIndo: GetMasterFullInfoDto = item?.ycRecordData as GetMasterFullInfoDto;
+            const recordIndo: GetMasterFullInfoDto = item?.extRecordData as GetMasterFullInfoDto;
             return {
                 id: item.id,
-                ycRecordId: item?.dkdRecordId,
+                extRecordId: item?.extRecordId,
                 clientName: item?.clientName,
                 clientPhone: item?.clientPhone,
                 clientComment: item?.clientComment,
-                datetime: dayjs(item?.dkdDate).format('YYYY-MM-DD HH:mm'),
+                datetime: dayjs(item?.extDate).format('YYYY-MM-DD HH:mm'),
                 duration: recordIndo?.totalTimePriceInfo?.totalDuration,
                 masterName: recordIndo?.name,
                 masterImage: recordIndo?.image,
@@ -76,13 +76,13 @@ export class RecordService {
         if(!result) return null;
         return {
             id: result?.id,
-            ycRecordId: result?.dkdRecordId,
-            ycRecordHash: result?.ycRecordHash,
+            extRecordId: result?.extRecordId,
+            extRecordHash: result?.extRecordHash,
             clientName: result?.clientName,
             clientPhone: result?.clientPhone,
             clientComment: result?.clientComment,
-            datetime: dayjs(result?.dkdDate).format('YYYY-MM-DD HH:mm'),
-            master: result?.ycRecordData as GetMasterFullInfoDto,
+            datetime: dayjs(result?.extDate).format('YYYY-MM-DD HH:mm'),
+            master: result?.extRecordData as GetMasterFullInfoDto,
         };
     }
 
@@ -93,20 +93,20 @@ export class RecordService {
       
         const uniqueDates = await this.prisma.record.findMany({
           where: {
-            dkdDate: {
+            extDate: {
               gte: new Date(dateFrom),
               lt: adjustedDateTo, // Используем lt для включения dateTo
             },
             clientId: clientId,
           },
           select: {
-            dkdDate: true,
+            extDate: true,
           },
-          distinct: ['dkdDate'],
+          distinct: ['extDate'],
         });
       
         const formattedDates = uniqueDates.map(record => 
-          record.dkdDate.toISOString().split('T')[0]
+          record.extDate.toISOString().split('T')[0]
         );
       
         return formattedDates;
@@ -119,7 +119,7 @@ export class RecordService {
                 where: {staffId},
                 orderBy: [
                     {
-                      dkdRecordId: 'asc',
+                      extRecordId: 'asc',
                     },
                   ],
             });
@@ -131,19 +131,19 @@ export class RecordService {
       if(!result) return null;
       const record = await this.prisma.record.update({where:{id: result.id},
           data: {
-            dkdDate: new Date(data.datetime).toISOString(),
+            extDate: new Date(data.datetime).toISOString(),
             clientComment: data.comment,
           }
         });
       return {
         id: record?.id,
-        ycRecordId: record?.dkdRecordId,
-        ycRecordHash: record?.ycRecordHash,
+        extRecordId: record?.extRecordId,
+        extRecordHash: record?.extRecordHash,
         clientName: record?.clientName,
         clientPhone: record?.clientPhone,
         clientComment: record?.clientComment,
-        datetime: dayjs(record?.dkdDate).format('YYYY-MM-DD HH:mm'),
-        master: record?.ycRecordData as GetMasterFullInfoDto,
+        datetime: dayjs(record?.extDate).format('YYYY-MM-DD HH:mm'),
+        master: record?.extRecordData as GetMasterFullInfoDto,
       };
     }
 

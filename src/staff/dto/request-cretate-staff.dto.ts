@@ -2,6 +2,6 @@ import { $Enums } from "@prisma/client";
 
 export class RequestCreateStaffDto {
     appUserId: string;
-    dkdMasterId?: string;
+    extMasterId?: string;
     role: $Enums.UserRoles;
 }

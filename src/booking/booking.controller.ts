@@ -76,38 +76,38 @@ export class BookingController {
     @UseGuards(JwtAuthGuard)
     @Get('company')
     async getCompany(@User() user: UserPayloadDto): Promise<GetCompanyDto | null> {
-        return await this.bookingService.getCompany(user.dkdCompanyId);
+        return await this.bookingService.getCompany(user.extCompanyId);
     }
 
     @UseGuards(JwtAuthGuard)
     @Get('masters')
     async getMasters(@User() user: UserPayloadDto): Promise<GetMasterDto[]> {
-        return await this.bookingService.getMasters(user.dkdCompanyId);
+        return await this.bookingService.getMasters(user.extCompanyId);
     }
 
     @UseGuards(JwtAuthGuard)
     @Get('masters/master/full-info')
     async getMaster(@User() user: UserPayloadDto, @Query('masterId') masterId: string): Promise<GetMasterFullInfoDto> {
-        return this.bookingService.getMasterFullInfo(user.dkdCompanyId, masterId);
+        return this.bookingService.getMasterFullInfo(user.extCompanyId, masterId);
     }
 
     @UseGuards(JwtAuthGuard)
     @Get('get-masters-multi')
     async getMastersMulti(@User() user: UserPayloadDto, @Query('serviceId') serviceId: string[]): Promise<GetMasterFullInfoDto[]> {
-        const result =  await this.bookingService.getMastersMulti(user.dkdCompanyId, serviceId);
+        const result =  await this.bookingService.getMastersMulti(user.extCompanyId, serviceId);
         return result;
     }
 
     @UseGuards(JwtAuthGuard)
     @Get('services')
     async getServices(@User() user: UserPayloadDto): Promise<GetCategoryWithServiceDto> {
-        return this.bookingService.getServices(user.dkdCompanyId);
+        return this.bookingService.getServices(user.extCompanyId);
     }
 
     // @UseGuards(JwtAuthGuard)
     // @Get('datetimes')
     // async getMasterServiceDatetimes(@User() user: UserPayloadDto, @Query('serviceId') serviceId: string, @Query('date') date?: string, @Query('masterId') masterId?: string): Promise<any> {
-    //     const result =  await this.bookingService.getMasterServiceDatetimes(user.dkdCompanyId, serviceId, date || '', masterId);
+    //     const result =  await this.bookingService.getMasterServiceDatetimes(user.extCompanyId, serviceId, date || '', masterId);
     //     return result;
     // }
 
@@ -115,7 +115,7 @@ export class BookingController {
     @Post('get-datetimes-multi')
     @HttpCode(200)
     async getMasterServiceDatetimesMulti(@User() user: UserPayloadDto, @Body() body: RequestGetDateTimesDto): Promise<GetMasterServiceDatetimesMulti> {
-        const result =  await this.bookingService.getMasterServiceDatetimesMulti(user.dkdCompanyId, body);
+        const result =  await this.bookingService.getMasterServiceDatetimesMulti(user.extCompanyId, body);
         return result;
     }
 
@@ -123,14 +123,14 @@ export class BookingController {
     @Post('get-dates-true')
     @HttpCode(200)
     async getDatesTrue(@User() user: UserPayloadDto, @Body() body: RequestGetDatesTrueDto): Promise<string[]> {
-        const result =  await this.bookingService.getDatesTrue(user.dkdCompanyId, body);
+        const result =  await this.bookingService.getDatesTrue(user.extCompanyId, body);
         return result;
     }
 
     @UseGuards(JwtAuthGuard)
     @Post('new-record')
     async newRecord(@User() user: UserPayloadDto, @Body() body: RequestRecordDto): Promise<ResponseGetRecordFullInfoDto> {
-        const result =  await this.bookingService.newRecord(user.dkdCompanyId, body);
+        const result =  await this.bookingService.newRecord(user.extCompanyId, body);
         //return {status: result?.status, data: result?.data};
         if (result?.status != 201) {
             throw new HttpException({message: result.data?.meta?.message}, HttpStatus.BAD_REQUEST);
@@ -162,10 +162,10 @@ export class BookingController {
                 // добавить инфу о записи в бд
                 const newRecord = await this.recordService.create({
                     clientId: clientId,
-                    dkdRecordId: result?.data?.data[0]?.record_id.toString(),
-                    ycRecordHash: result?.data?.data[0]?.record_hash,
+                    extRecordId: result?.data?.data[0]?.record_id.toString(),
+                    extRecordHash: result?.data?.data[0]?.record_hash,
                     staffId: masterUser?.userId,
-                    dkdDate: new Date(body?.time).toISOString(),
+                    extDate: new Date(body?.time).toISOString(),
                     clientName: body?.firstName,
                     clientPhone: body?.phone,
                     clientComment: body?.comment,
@@ -206,16 +206,16 @@ ${clientDataText}`;
                 for(const administrator of administratorsUser){
                     await this.telegramChatService.sendMessage(salon.tgToken, administrator?.tgChatId.toString(), administratorText);
                 }
-                //let recordInfo = await this.recordService.getById(user.dkdCompanyId, newRecord.id);
+                //let recordInfo = await this.recordService.getById(user.extCompanyId, newRecord.id);
                 return {
                     id: newRecord.id,
-                    ycRecordId: result?.data?.data[0]?.record_id.toString(),
+                    extRecordId: result?.data?.data[0]?.record_id.toString(),
                     clientName: body?.firstName,
                     clientPhone: body?.phone,
                     clientComment: body?.comment,
                     datetime: body?.time,
                     master: body?.recordInfo,
-                    ycRecordHash: result?.data?.data[0]?.record_hash,
+                    extRecordHash: result?.data?.data[0]?.record_hash,
                     message: 'Запись создана'
                 };
         }
@@ -229,7 +229,7 @@ ${clientDataText}`;
     @Delete('remove-record')
     @HttpCode(200)
     async removeRecord(@User() user: UserPayloadDto, @Query('id') recordId: string): Promise<any> {
-        const result =  await this.bookingService.removeRecord(user.dkdCompanyId, recordId);
+        const result =  await this.bookingService.removeRecord(user.extCompanyId, recordId);
         if(result?.error) throw new HttpException(result, HttpStatus.BAD_REQUEST);
         //раскидать в телегу
 
@@ -289,7 +289,7 @@ ${clientDataText}`;
     @UseGuards(JwtAuthGuard)
     @Put('transfer-record')
     async transferRecord(@User() user: UserPayloadDto, @Body() body: RequestUpdateRecordDto): Promise<any> {
-        const result =  await this.bookingService.transferRecord(user.dkdCompanyId, body);
+        const result =  await this.bookingService.transferRecord(user.extCompanyId, body);
         if(result?.error) throw new HttpException(result, HttpStatus.BAD_REQUEST);
 
         const salon = await this.salonService.getOne(user.salonId);

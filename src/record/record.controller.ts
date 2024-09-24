@@ -16,7 +16,7 @@ export class RecordController {
     @UseGuards(JwtAuthGuard)
     @Get('get-dates-true')
     async getDatesTrue(@User() user: UserPayloadDto, @Query('dateFrom') dateFrom: string, @Query('dateTo') dateTo: string,): Promise<string[]> {
-        const result =  await this.recordService.GetRecordsDatesTrue(user.dkdCompanyId, user.clientId, dateFrom, dateTo);
+        const result =  await this.recordService.GetRecordsDatesTrue(user.extCompanyId, user.clientId, dateFrom, dateTo);
         return result;
     }
     

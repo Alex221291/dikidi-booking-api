@@ -1,11 +1,11 @@
 export class RequestCreateRecordDto {
-    dkdRecordId: string;
-    ycRecordHash?: string;
+    extRecordId: string;
+    extRecordHash?: string;
     clientId: string;
     staffId: string;
     clientComment?: string;
     clientName: string;
     clientPhone: string;
-    dkdDate: string;
+    extDate: string;
     recordInfo?: string;
 }

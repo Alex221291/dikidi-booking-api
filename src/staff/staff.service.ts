@@ -11,8 +11,8 @@ export class StaffService {
         private telegramChatService: TelegramChatService,
     ) {}
 
-    async getMasterUser(dkdMasterId: string): Promise<any> {
-        const staff =  await this.prisma.staff.findFirst({where:{dkdMasterId}});
+    async getMasterUser(extMasterId: string): Promise<any> {
+        const staff =  await this.prisma.staff.findFirst({where:{extMasterId}});
         if(!staff) return null;
         const master =  await this.prisma.user.findFirst({where:{staffId: staff?.id}});
         return master;
@@ -26,7 +26,7 @@ export class StaffService {
     async createStaff(data: RequestCreateStaffDto): Promise<any> {
         let staffId;
         if(data.role == $Enums.UserRoles.MASTER){
-            const staff =  await this.prisma.staff.create({data:{dkdMasterId: data.dkdMasterId}});
+            const staff =  await this.prisma.staff.create({data:{extMasterId: data.extMasterId}});
             staffId = staff.id; 
         }
         const user = await this.prisma.user.update({

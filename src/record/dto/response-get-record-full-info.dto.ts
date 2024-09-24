@@ -2,8 +2,8 @@ import { GetMasterFullInfoDto } from "src/booking/dto/get-master-full-info.dto";
 
 export class ResponseGetRecordFullInfoDto {
     id?: string;
-    ycRecordId?: string;
-    ycRecordHash?: string;
+    extRecordId?: string;
+    extRecordHash?: string;
     clientName?: string;
     clientPhone?: string;
     clientComment?: string;

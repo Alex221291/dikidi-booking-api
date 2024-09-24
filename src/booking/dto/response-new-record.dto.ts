@@ -2,8 +2,8 @@ import { GetMasterFullInfoDto } from "./get-master-full-info.dto";
 
 export interface ResponseNewRecordDto {
     recordId?: string;
-    ycRecordId?: string;
-    ycRecordHash?: string;
+    extRecordId?: string;
+    extRecordHash?: string;
     clientName?: string;
     clientPhone?: string;
     clientComment?: string;

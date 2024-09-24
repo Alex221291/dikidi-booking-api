@@ -232,7 +232,7 @@ export class BookingService {
         const currentRecrodInfo = await this.recordService.getById(companyId, recordId);
         if(!currentRecrodInfo) return {error: 'Запись не найдена'};
 
-        const removeRecordFromService = await this.yciletnService.removeRecord(companyId, currentRecrodInfo.ycRecordId, currentRecrodInfo.ycRecordHash);
+        const removeRecordFromService = await this.yciletnService.removeRecord(companyId, currentRecrodInfo.extRecordId, currentRecrodInfo.extRecordHash);
         console.log('delete yc status - ' + removeRecordFromService.status);
         if(removeRecordFromService.status != 204) return {error: 'Ошибка удаления записи'};
 
@@ -244,7 +244,7 @@ export class BookingService {
         const currentRecrodInfo = await this.recordService.getById(companyId, data.id);
         if(!currentRecrodInfo) return {error: 'Запись не найдена'};
 
-        const transferRecordFromService = await this.yciletnService.recordTransfer(companyId, currentRecrodInfo.ycRecordId, currentRecrodInfo.ycRecordHash, data.datetime, data?.comment);
+        const transferRecordFromService = await this.yciletnService.recordTransfer(companyId, currentRecrodInfo.extRecordId, currentRecrodInfo.extRecordHash, data.datetime, data?.comment);
         console.log('transfer yc status - ' + transferRecordFromService.status);
         if(transferRecordFromService.status != 200) return {error: 'Ошибка удаления записи'};
 

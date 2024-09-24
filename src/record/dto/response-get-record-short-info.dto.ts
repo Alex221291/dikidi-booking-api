@@ -1,6 +1,6 @@
 export class ResponseGetRecordShortInfoDto {
     id?: string;
-    ycRecordId?: string;
+    extRecordId?: string;
     clientName?: string;
     clientPhone?: string;
     clientComment?: string;
