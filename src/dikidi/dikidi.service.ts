@@ -127,15 +127,15 @@ export class DikidiService {
         return response;
     }
 
-    async getDatesTrue(companyId: string, masters: {masterId: string, serviceId: string[]}[], dateFrom: string, dateTo: string,): Promise<any> {
+    async getDatesTrue(companyId: string, masters: {masterId: string, serviceId?: string[]}[], dateFrom: string, dateTo: string,): Promise<any> {
         // Формируем service_id_list
         const serviceIdList = masters.reduce((acc, master) => {
-            return acc.concat(master.serviceId);
+            return acc.concat(master?.serviceId);
         }, []);
     
         // Формируем service_master_list
         const serviceMasterList = masters.reduce((acc, master) => {
-            master.serviceId.forEach(serviceId => {
+            master?.serviceId.forEach(serviceId => {
             acc[serviceId] = master.masterId;
             });
             return acc;
@@ -313,7 +313,8 @@ export class DikidiService {
         };
 
         const data = lastValueFrom(this.httpService.get(`https://dikidi.ru/ru/mobile/newrecord/remove_record/`,
-            {params}
+            {params
+            }
         )
             .pipe(
                 map(response => response.data)));

@@ -1,7 +1,7 @@
-import { GetMasterFullInfoDto } from "./get-master-full-info.dto";
+import { GetMasterFullInfoDto } from "src/booking/dto/get-master-full-info.dto";
 
-export interface ResponseNewRecordDto {
-    recordId?: string;
+export class ResponseGetRecordFullInfoDto {
+    id?: string;
     ycRecordId?: string;
     ycRecordHash?: string;
     clientName?: string;
@@ -11,4 +11,3 @@ export interface ResponseNewRecordDto {
     master?: GetMasterFullInfoDto;
     message?: string;
 }
-

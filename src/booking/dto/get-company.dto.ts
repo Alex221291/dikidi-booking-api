@@ -1,16 +1,13 @@
-export class GetCompanyDto {
+export interface GetCompanyDto {
     id?: string;
     name?: string;
     description?: string;
     image?: string;
-    schedule?: CompanySchedule[];
+    schedule?: string;
     phones?: string[];
+    city?: string;
     address?: string;
-    currencyAbbr?: string;
-}
-
-export class CompanySchedule {
-    day?: string;
-    workFrom?: string;
-    workTo?: string;
+    coordinateLat?: number;
+    coordinateLon?: number;
+    currencyShortTitle?: string;
 }

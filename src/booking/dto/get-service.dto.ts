@@ -3,7 +3,8 @@ export interface GetServiceDto {
     name?: string;
     image?: string;
     time?: number;
-    price?: number;
+    priceMin?: number;
+    priceMax?: number;
 }
 
 export interface GetCategoryWithServiceDto {

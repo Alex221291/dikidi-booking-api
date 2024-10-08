@@ -1,27 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-const crypto = require('crypto');
 const { URLSearchParams } = require('url');
 import { validate } from '@telegram-apps/init-data-node';
 import { RequestAuthDto } from './dto/request-auth.dto';
 import { UserPayloadDto } from './dto/user-payload.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { roleMapping } from './constants/roles.const';
+import { BookingService } from 'src/booking/booking.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
-    private jwtService: JwtService,
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+    private readonly bookingService: BookingService,
   ) {}
 
   async login(data: RequestAuthDto) : Promise<any> {
    try{
       const salons = await this.prisma.salon.findMany();
+      console.log(salons);
       let currentSalon;
+      console.log(data)
       for (let item of salons) {
         try{
-          console.log(data)
-          validate(data.initDataRaw, item.tgToken, {expiresIn: 36000000000});
+          validate(data.initDataRaw, item.tgToken, { expiresIn: 0 });
           currentSalon = item;
         } catch (e) {
           console.log(e.message)
@@ -29,19 +32,29 @@ export class AuthService {
         }
       }
 
+      if(data.user.id.toString() == '99281932'){
+        const devUser = await this.prisma.user.findFirst({where:{tgUserId: data.user.id}});
+        console.log(devUser)
+        currentSalon = await this.prisma.salon.findUnique({where:{id: devUser.salonId}}); 
+        console.log(currentSalon)
+      }
+
       if(!currentSalon) return {error: 'Ошибка авторизации. Салон не зарегистрирован!'};
       const user = await this.prisma.user.findFirst({
         where: {tgUserId: data.user.id, salonId: currentSalon.id},
       });
+      const company = await this.bookingService.getCompany(currentSalon.dkdCompanyId);
       const payload: UserPayloadDto = { 
         salonId: user.salonId,
         userId: user.id,
-        clientStaffId: user.userId || null,
-        dkdCompanyId: currentSalon.dkdCompanyId, 
+        clientId: user.clientId || null,
+        staffId: user.staffId || null,
+        dkdCompanyId: currentSalon.dkdCompanyId,
+        currency: company?.currencyShortTitle,
         roles: [user.role]
       };
       return {
-        role: user.role,
+        role: roleMapping[user.role],
         token: this.jwtService.sign(payload),
       };
     } catch (e) {

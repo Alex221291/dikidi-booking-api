@@ -19,13 +19,13 @@ export class ClientService {
             where: {id: data.userId}, 
         });
 
-        if(user?.userId) return {};
+        if(user?.clientId) return {};
 
         const client =  await this.prisma.client.create({data:{name: data.name, phone: data.phone}});
         const updateUser = await this.prisma.user.update({
             where: {id: data.userId}, 
             data:{
-                userId: client.id,
+                clientId: client.id,
                 role: $Enums.UserRoles.CLIENT
             }
         });

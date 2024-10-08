@@ -13,7 +13,8 @@ export class StaffService {
 
     async getMasterUser(dkdMasterId: string): Promise<any> {
         const staff =  await this.prisma.staff.findFirst({where:{dkdMasterId}});
-        const master =  await this.prisma.user.findFirst({where:{userId: staff.id}});
+        if(!staff) return null;
+        const master =  await this.prisma.user.findFirst({where:{staffId: staff?.id}});
         return master;
     }
 
@@ -23,16 +24,16 @@ export class StaffService {
     }
 
     async createStaff(data: RequestCreateStaffDto): Promise<any> {
-        let userId;
+        let staffId;
         if(data.role == $Enums.UserRoles.MASTER){
             const staff =  await this.prisma.staff.create({data:{dkdMasterId: data.dkdMasterId}});
-            userId = staff.id; 
+            staffId = staff.id; 
         }
         const user = await this.prisma.user.update({
             where: {id: data.appUserId}, 
             data:{
                 role: data.role,
-                userId: userId || null}
+                staffId: staffId || null}
         });
 
         const salon = await this.prisma.salon.findUnique({where:{id: user.salonId}})

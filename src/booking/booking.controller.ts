@@ -20,6 +20,11 @@ import * as dayjs from 'dayjs';
 import * as localizedFormat from 'dayjs/plugin/localizedFormat';
 import 'dayjs/locale/ru';
 import { RecordService } from 'src/record/record.service';
+import { GetMasterFullInfoDto } from './dto/get-master-full-info.dto';
+import { ResponseNewRecordDto } from './dto/response-new-record.dto';
+import { MessageChannel } from 'worker_threads';
+import { ResponseGetRecordFullInfoDto } from 'src/record/dto/response-get-record-full-info.dto';
+import { RequestUpdateRecordDto } from 'src/record/dto/request-update-record.dto';
 
 dayjs.extend(localizedFormat);
 
@@ -76,19 +81,19 @@ export class BookingController {
 
     @UseGuards(JwtAuthGuard)
     @Get('masters')
-    async getMasters(@User() user: UserPayloadDto): Promise<GetMasterDto[] | []> {
+    async getMasters(@User() user: UserPayloadDto): Promise<GetMasterDto[]> {
         return await this.bookingService.getMasters(user.dkdCompanyId);
     }
 
     @UseGuards(JwtAuthGuard)
     @Get('masters/master/full-info')
-    async getMaster(@User() user: UserPayloadDto, @Query('masterId') masterId: string): Promise<any> {
+    async getMaster(@User() user: UserPayloadDto, @Query('masterId') masterId: string): Promise<GetMasterFullInfoDto> {
         return this.bookingService.getMasterFullInfo(user.dkdCompanyId, masterId);
     }
 
     @UseGuards(JwtAuthGuard)
     @Get('get-masters-multi')
-    async getMastersMulti(@User() user: UserPayloadDto, @Query('serviceId') serviceId: string[]): Promise<any> {
+    async getMastersMulti(@User() user: UserPayloadDto, @Query('serviceId') serviceId: string[]): Promise<GetMasterFullInfoDto[]> {
         const result =  await this.bookingService.getMastersMulti(user.dkdCompanyId, serviceId);
         return result;
     }
@@ -99,19 +104,18 @@ export class BookingController {
         return this.bookingService.getServices(user.dkdCompanyId);
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Get('datetimes')
-    async getMasterServiceDatetimes(@User() user: UserPayloadDto, @Query('serviceId') serviceId: string, @Query('date') date?: string, @Query('masterId') masterId?: string): Promise<any> {
-        const result =  await this.bookingService.getMasterServiceDatetimes(user.dkdCompanyId, serviceId, date || '', masterId);
-        return result;
-    }
+    // @UseGuards(JwtAuthGuard)
+    // @Get('datetimes')
+    // async getMasterServiceDatetimes(@User() user: UserPayloadDto, @Query('serviceId') serviceId: string, @Query('date') date?: string, @Query('masterId') masterId?: string): Promise<any> {
+    //     const result =  await this.bookingService.getMasterServiceDatetimes(user.dkdCompanyId, serviceId, date || '', masterId);
+    //     return result;
+    // }
 
     @UseGuards(JwtAuthGuard)
     @Post('get-datetimes-multi')
     @HttpCode(200)
     async getMasterServiceDatetimesMulti(@User() user: UserPayloadDto, @Body() body: RequestGetDateTimesDto): Promise<GetMasterServiceDatetimesMulti> {
-        console.log(body.masters);
-        const result =  await this.bookingService.getMasterServiceDatetimesMulti(user.dkdCompanyId, body.masters, body.date);
+        const result =  await this.bookingService.getMasterServiceDatetimesMulti(user.dkdCompanyId, body);
         return result;
     }
 
@@ -119,22 +123,21 @@ export class BookingController {
     @Post('get-dates-true')
     @HttpCode(200)
     async getDatesTrue(@User() user: UserPayloadDto, @Body() body: RequestGetDatesTrueDto): Promise<string[]> {
-        console.log(body.masters);
         const result =  await this.bookingService.getDatesTrue(user.dkdCompanyId, body);
         return result;
     }
 
     @UseGuards(JwtAuthGuard)
     @Post('new-record')
-    async newRecord(@User() user: UserPayloadDto, @Body() body: RequestRecordDto): Promise<any> {
+    async newRecord(@User() user: UserPayloadDto, @Body() body: RequestRecordDto): Promise<ResponseGetRecordFullInfoDto> {
         const result =  await this.bookingService.newRecord(user.dkdCompanyId, body);
-        console.log(result?.error)
-        if (result?.error) {
-            throw new HttpException(result, HttpStatus.BAD_REQUEST);
+        //return {status: result?.status, data: result?.data};
+        if (result?.status != 201) {
+            throw new HttpException({message: result.data?.meta?.message}, HttpStatus.BAD_REQUEST);
         }
-        let clientStaffId = user.clientStaffId;
+        let clientId = user.clientId;
         //добавить клиента если первый заказ
-        if(!user.clientStaffId)
+        if(!user.clientId)
         {
             const newClient = await this.clientService.create(
                 {
@@ -142,117 +145,210 @@ export class BookingController {
                     phone: body.phone,
                     userId: user.userId
             });
-            clientStaffId = newClient.id;
+            clientId = newClient.id;
         }
 
-        // получить инфу о салоне
         const salon = await this.salonService.getOne(user.salonId);
         try{
-            if(salon)
-            {
                 // получить chatId клиента - отправить сообщение
-                const clientUser = await this.clientService.getClientUser(user.userId, clientStaffId);
+                const clientUser = await this.clientService.getClientUser(user.userId, clientId);
+                const totalPriceText = 
+                body.recordInfo.totalTimePriceInfo?.totalPriceMin === body.recordInfo?.totalTimePriceInfo?.totalPriceMax 
+                ? `${body.recordInfo?.totalTimePriceInfo?.totalPriceMax}` : `${body.recordInfo?.totalTimePriceInfo?.totalPriceMin} - ${body.recordInfo?.totalTimePriceInfo?.totalPriceMax}`;
                 const clientDataText = `клиент - ${body.firstName}(${body.phone})
 Комментарий: ${body?.comment}`;
 
-                for(const item of result){
-                    console.log(result);
-                    const masterUser = await this.staffService.getMasterUser(item.master.id);
-                    // TODO: добавить инфу о записи в бд
-                    const newRecord = await this.recordService.create({
-                        clientId: clientStaffId,
-                        dkdRecordId: item.id,
-                        staffId: masterUser?.userId,
-                    }); 
+                const masterUser = await this.staffService.getMasterUser(body.recordInfo.id);
+                // добавить инфу о записи в бд
+                const newRecord = await this.recordService.create({
+                    clientId: clientId,
+                    dkdRecordId: result?.data?.data[0]?.record_id.toString(),
+                    ycRecordHash: result?.data?.data[0]?.record_hash,
+                    staffId: masterUser?.userId,
+                    dkdDate: new Date(body?.time).toISOString(),
+                    clientName: body?.firstName,
+                    clientPhone: body?.phone,
+                    clientComment: body?.comment,
+                    recordInfo: JSON.stringify(body.recordInfo),
+                }); 
 
-                    const recordMainText = `${await this.dateFormat(item?.time, item?.timeTo)}
+                const recordMainText = `${await this.dateFormat(body.time, body.recordInfo?.totalTimePriceInfo?.totalDuration)}
 
-${item?.services?.map(record => record.name).join('\n')}
+${body.recordInfo.services?.map(service => service.name).join('\n')}
                     
-${item?.price} ${item?.currency?.abbr}`;
+${totalPriceText} ${user?.currency}`;
                     const clientText = `Вы записались!
 Онлайн-запись является равнозначной записи по телефону и не требует подтверждения
 
-мастер - ${item.master.name}
+мастер - ${body.recordInfo?.name}
 ${recordMainText}`;
 
-                    await this.telegramChatService.sendMessage(salon.tgToken, clientUser.tgChatId.toString(), clientText);
-                    // мастеру отослать
-                    // получить chatId мастера - отправить сообщение
-                    const masterText = `Новая запись!
+                await this.telegramChatService.sendMessage(salon.tgToken, clientUser.tgChatId.toString(), clientText);
+                // мастеру отослать
+                // получить chatId мастера - отправить сообщение
+                const masterText = `Новая запись!
             
 ${recordMainText}
 
 ${clientDataText}`;
-                    await this.telegramChatService.sendMessage(salon.tgToken, masterUser?.tgChatId.toString(), masterText);
+                await this.telegramChatService.sendMessage(salon.tgToken, masterUser?.tgChatId.toString(), masterText);
                     
                 
-                    // администраторам отослать
-                    const administratorsUser = await this.staffService.getSalonAdministratorsUser(salon.id);
-                    const administratorText = `Новая запись!
+                // администраторам отослать
+                const administratorsUser = await this.staffService.getSalonAdministratorsUser(salon.id);
+                const administratorText = `Новая запись!
 
-мастер - ${item.master.name}
+мастер - ${body.recordInfo?.name}
 
 ${recordMainText}
                     
 ${clientDataText}`;
-                    for(const administrator of administratorsUser){
-                        await this.telegramChatService.sendMessage(salon.tgToken, administrator?.tgChatId.toString(), administratorText);
-                    }
+                for(const administrator of administratorsUser){
+                    await this.telegramChatService.sendMessage(salon.tgToken, administrator?.tgChatId.toString(), administratorText);
                 }
-            }
+                //let recordInfo = await this.recordService.getById(user.dkdCompanyId, newRecord.id);
+                return {
+                    id: newRecord.id,
+                    ycRecordId: result?.data?.data[0]?.record_id.toString(),
+                    clientName: body?.firstName,
+                    clientPhone: body?.phone,
+                    clientComment: body?.comment,
+                    datetime: body?.time,
+                    master: body?.recordInfo,
+                    ycRecordHash: result?.data?.data[0]?.record_hash,
+                    message: 'Запись создана'
+                };
         }
         catch(e){
             console.log(e);
-            return result;
+            return {message: result.message};
         }
-        return result;
-    }
-
-    // @Get('new-record/time-reservation')
-    // async timeReservation(@Query('masterId') masterId: string, @Query('serviceId') serviceId: string[], @Query('time') time: string): Promise<any> {
-    //     const result =  await this.bookingService.timeReservation(user.dkdCompanyId, masterId, serviceId, time);
-    //     return result;
-    // }
-
-    @UseGuards(JwtAuthGuard)
-    @Post('new-record/check')
-    async check(@User() user: UserPayloadDto, @Query('phone') phone: string, @Query('firstName') firstName: string, @Query('comment') comment?: string): Promise<any> {
-        const result =  await this.bookingService.check(user.dkdCompanyId, phone, firstName, comment);
-        return result;
     }
 
     @UseGuards(JwtAuthGuard)
-    @Post('new-record/record')
-    async record(@User() user: UserPayloadDto, @Query('phone') phone: string, @Query('firstName') firstName: string, @Query('comment') comment?: string): Promise<any> {
-        const result =  await this.bookingService.record(user.dkdCompanyId, phone, firstName, comment);
-        return result;
+    @Delete('remove-record')
+    @HttpCode(200)
+    async removeRecord(@User() user: UserPayloadDto, @Query('id') recordId: string): Promise<any> {
+        const result =  await this.bookingService.removeRecord(user.dkdCompanyId, recordId);
+        if(result?.error) throw new HttpException(result, HttpStatus.BAD_REQUEST);
+        //раскидать в телегу
+
+        const salon = await this.salonService.getOne(user.salonId);
+        try{
+                // получить chatId клиента - отправить сообщение
+                const clientUser = await this.clientService.getClientUser(user.userId, user.clientId);
+                const totalPriceText = 
+                result?.master?.totalTimePriceInfo?.totalPriceMin === result?.master?.totalTimePriceInfo?.totalPriceMax 
+                ? `${result?.master?.totalTimePriceInfo?.totalPriceMax}` : `${result?.master?.totalTimePriceInfo?.totalPriceMin} - ${result?.master?.totalTimePriceInfo?.totalPriceMax}`;
+                const clientDataText = `клиент - ${result.clientName}(${result.clientPhone})
+Комментарий: ${result?.clientComment}`;
+
+                const masterUser = await this.staffService.getMasterUser(result?.master?.id);
+
+                const recordMainText = `${await this.dateFormat(result.datetime, result?.master?.totalTimePriceInfo?.totalDuration)}
+
+${result?.master?.services?.map(service => service.name).join('\n')}
+                    
+${totalPriceText} ${user?.currency}`;
+                    const clientText = `Уважаемый клиент! Ваша запись отменена
+
+мастер - ${result?.master?.name}
+${recordMainText}`;
+
+                await this.telegramChatService.sendMessage(salon.tgToken, clientUser.tgChatId.toString(), clientText);
+                // мастеру отослать
+                // получить chatId мастера - отправить сообщение
+                const masterText = `Запись отменена!
+            
+${recordMainText}
+
+${clientDataText}`;
+                await this.telegramChatService.sendMessage(salon.tgToken, masterUser?.tgChatId.toString(), masterText);
+                    
+                
+                // администраторам отослать
+                const administratorsUser = await this.staffService.getSalonAdministratorsUser(salon.id);
+                const administratorText = `Запись отменена!
+
+мастер - ${result?.master?.name}
+
+${recordMainText}
+                    
+${clientDataText}`;
+                for(const administrator of administratorsUser){
+                    await this.telegramChatService.sendMessage(salon.tgToken, administrator?.tgChatId.toString(), administratorText);
+                }
+                return result;
+        }
+        catch(e){
+            console.log(e);
+            return {message: result.message};
+        }
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get('new-record/records-info')
-    async recordsInfo(@User() user: UserPayloadDto, @Query('recordId') recordId: string[]): Promise<any> {
-        const result =  await this.bookingService.recordInfo(user.dkdCompanyId, recordId);
-        return result;
+    @Put('transfer-record')
+    async transferRecord(@User() user: UserPayloadDto, @Body() body: RequestUpdateRecordDto): Promise<any> {
+        const result =  await this.bookingService.transferRecord(user.dkdCompanyId, body);
+        if(result?.error) throw new HttpException(result, HttpStatus.BAD_REQUEST);
+
+        const salon = await this.salonService.getOne(user.salonId);
+        try{
+                // получить chatId клиента - отправить сообщение
+                const clientUser = await this.clientService.getClientUser(user.userId, user.clientId);
+                const totalPriceText = 
+                result?.master?.totalTimePriceInfo?.totalPriceMin === result?.master?.totalTimePriceInfo?.totalPriceMax 
+                ? `${result?.master?.totalTimePriceInfo?.totalPriceMax}` : `${result?.master?.totalTimePriceInfo?.totalPriceMin} - ${result?.master?.totalTimePriceInfo?.totalPriceMax}`;
+                const clientDataText = `клиент - ${result.clientName}(${result.clientPhone})
+Комментарий: ${result?.clientComment}`;
+
+                const masterUser = await this.staffService.getMasterUser(result?.master?.id);
+                // добавить инфу о записи в бд
+
+                const recordMainText = `${await this.dateFormat(result.datetime, result?.master?.totalTimePriceInfo?.totalDuration)}
+
+${result?.master?.services?.map(service => service.name).join('\n')}
+                    
+${totalPriceText} ${user?.currency}`;
+                    const clientText = `Уважаемый клиент! Ваша запись перенесена
+
+мастер - ${result?.master?.name}
+${recordMainText}`;
+
+                await this.telegramChatService.sendMessage(salon.tgToken, clientUser.tgChatId.toString(), clientText);
+                // мастеру отослать
+                // получить chatId мастера - отправить сообщение
+                const masterText = `Запись перенесена!
+            
+${recordMainText}
+
+${clientDataText}`;
+                await this.telegramChatService.sendMessage(salon.tgToken, masterUser?.tgChatId.toString(), masterText);
+                    
+                
+                // администраторам отослать
+                const administratorsUser = await this.staffService.getSalonAdministratorsUser(salon.id);
+                const administratorText = `Запись перенесена!
+
+мастер - ${result?.master?.name}
+
+${recordMainText}
+                    
+${clientDataText}`;
+                for(const administrator of administratorsUser){
+                    await this.telegramChatService.sendMessage(salon.tgToken, administrator?.tgChatId.toString(), administratorText);
+                }
+                return result;
+        }
+        catch(e){
+            console.log(e);
+            return {message: result.message};
+        }
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Delete('remove')
-    async removeRecord(@User() user: UserPayloadDto, @Query('recordId') recordId: string, cookie: string): Promise<any> {
-        const result =  await this.bookingService.removeRecord(recordId);
-        return result;
-    }
-
-    @UseGuards(JwtAuthGuard)
-    @Put('reschedule')
-    async rescheduleRecord(@User() user: UserPayloadDto, @Query('recordId') recordId: string): Promise<any> {
-        const result =  await this.bookingService.rescheduleRecord(recordId);
-        return result;
-    }
-
-    async dateFormat(time: string, timeTo): Promise<string> {
+    async dateFormat(time: string, duration: number): Promise<string> {
         const start = dayjs(time).locale('ru');
-        const end = dayjs(timeTo).locale('ru');
+        const end = dayjs(time).add(duration, 'minutes').locale('ru');
 
         const formattedDate = `${start.format('dddd DD MMMM HH:mm')}-${end.format('HH:mm')}`;
         return formattedDate;

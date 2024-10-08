@@ -1,33 +1,28 @@
-import { GetServiceDto } from "./get-service.dto";
-
 export interface GetMasterFullInfoDto {
     id?: string;
     name?: string;
     post?: string;
     description?: string;
     image?: string;
-    gallery?: Gallery[];
-    services?: ServiceDateTimes[];
-    currency?: Currency;
+    rating?: string;
+    seanceDate?: string;
+    services?: MasterServiceInfo[];
+    totalTimePriceInfo?: TotalTimePriceInfo;
+    currency?: string;
 }
 
-export interface Currency {
-    id?: number;
-    title?: string;
-    abbr?: string;
-    iso?: string;
+export interface TotalTimePriceInfo {
+    totalDuration?: number;
+    totalPriceMin?: number;
+    totalPriceMax?: number;
 }
 
-export interface Gallery{
-    big?: string,
-    zoom?: string,
-}
-
-export interface ServiceDateTimes {
+export interface MasterServiceInfo {
     id?: string;
     name?: string;
     image?: string;
     time?: number;
-    price?: number;
+    priceMin?: number;
+    priceMax?: number;
 }
 
