@@ -17,14 +17,87 @@ model Salon {
   id    String   @default(uuid()) @id @db.Uuid
   name    String
   description    String?
+  imageUrl    String?
+  schedule    String?
+  city    String?
+  address    String?
+  coordinateLat    String?
+  coordinateLon    String?
+  currencyShortTitle    String?
   extCompanyId    String
   tgBotId    BigInt
   tgBotName    String
   tgToken    String
+  contacts    SalonContact[]
   users User[]
+  masters Master[]
+  services Service[]
+  serviceCategories ServiceCategory[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@map("salons")
+}
+
+model Master {
+  id        String    @default(uuid()) @id @db.Uuid
+  extId     String?
+  name      String?
+  post      String?
+  imageUrl  String?
+  rating    Float?
+  weight    Int?
+  bookable  Boolean?
+  salon     Salon?    @relation(fields: [salonId], references: [id])
+  salonId   String?   @db.Uuid
+  services  MasterService[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  @@map("masters")
+}
+
+model Service {
+  id        String    @default(uuid()) @id @db.Uuid
+  extId     String?
+  name      String?
+  imageUrl  String?
+  time      Int?
+  priceMin  Int?
+  priceMax  Int?
+  weight    Int?
+  salon     Salon?    @relation(fields: [salonId], references: [id])
+  salonId   String?   @db.Uuid
+  category  ServiceCategory? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String?  @db.Uuid
+  masters   MasterService[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  @@map("services")
+}
+
+model MasterService {
+  id        String    @default(uuid()) @id @db.Uuid
+  masterId  String    @db.Uuid
+  serviceId String    @db.Uuid
+  time      Int?
+  priceMin  Int?
+  priceMax  Int?
+  master    Master    @relation(fields: [masterId], references: [id], onDelete: Cascade)
+  service   Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  @@unique([masterId, serviceId])
+  @@map("master_services")
+}
+
+
+model ServiceCategory {
+  id    String   @default(uuid()) @id @db.Uuid
+  extId String?
+  name    String?
+  salon    Salon?    @relation(fields: [salonId], references: [id])
+  salonId  String? @db.Uuid
+  services Service[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("service_categories")
 }
 
 model User {
@@ -64,13 +137,13 @@ model Staff {
   user      User?
   rewiers Review[]
   records Record[]
-  contacts StaffContact[]
+  contacts    StaffContact[]
   @@map("staff")
 }
 
 model Review {
   id    String   @default(uuid()) @id @db.Uuid
-  name    String?
+  title    String?
   description    String?
   date    DateTime @default(now()) @db.Date
   score    Int?
@@ -101,14 +174,34 @@ model Record {
   @@map("records")
 }
 
-model StaffContact {
+model Contact {
   id    String   @default(uuid()) @id @db.Uuid
   type    ContactTypes
-  value   String?
-  staff    Staff?    @relation(fields: [staffId], references: [id])
-  staffId  String? @db.Uuid
+  value   String?  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  salons    SalonContact[]
+  staff    StaffContact[]
+  @@map("contacts")
+}
+
+model SalonContact {
+  id        String    @default(uuid()) @id @db.Uuid
+  salonId   String    @db.Uuid
+  contactId String    @db.Uuid
+  salon     Salon     @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  contact   Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  @@unique([salonId, contactId])
+  @@map("salon_contacts")
+}
+
+model StaffContact {
+  id        String    @default(uuid()) @id @db.Uuid
+  staffId   String    @db.Uuid
+  contactId String    @db.Uuid
+  staff     Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  contact   Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  @@unique([staffId, contactId])
   @@map("staff_contacts")
 }
 
@@ -127,5 +220,6 @@ enum ContactTypes {
   VIBER
   WHATSAPP
   INSTAGRAM
-  VK  
+  VK 
+  PHONE
 }

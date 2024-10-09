@@ -6,7 +6,10 @@ import { PrismaModule } from 'src/prisma/prisma.module'
 import { TelegramChatService } from './telegram-chat.service'
 
 @Module({
-  imports: [TelegrafModule.forRootAsync(options()), PrismaModule],
+  imports: [
+    //TelegrafModule.forRootAsync(options()), 
+    PrismaModule
+  ],
   providers: [TelegramBotService, TelegramChatService],
   exports: [TelegramChatService],
 })

@@ -13,9 +13,10 @@ import { StaffModule } from './staff/staff.module';
 import { RecordModule } from './record/record.module';
 import { UserModule } from './user/user.module';
 import { YclientsModule } from './yclients/yclients.module';
+import { DataSyncModule } from './data_sync/data_sync.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), BookingModule, DikidiModule, TelegramModule, AuthModule, PrismaModule, SalonModule, ClientModule, StaffModule, RecordModule, UserModule, YclientsModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), BookingModule, DikidiModule, TelegramModule, AuthModule, PrismaModule, SalonModule, ClientModule, StaffModule, RecordModule, UserModule, YclientsModule, DataSyncModule],
   controllers: [AppController],
   providers: [AppService],
 })

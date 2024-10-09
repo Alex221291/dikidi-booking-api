@@ -1,6 +1,6 @@
 -- AlterTable
 ALTER TABLE "records"
-RENAME COLUMN "extDate" TO "extDate";
+RENAME COLUMN "dkdDate" TO "extDate";
 ALTER TABLE "records"
 RENAME COLUMN "dkdRecordId" TO "extRecordId";
 ALTER TABLE "records"
@@ -10,7 +10,7 @@ RENAME COLUMN "ycRecordHash" TO "extRecordHash";
 
 -- AlterTable
 ALTER TABLE "salons"
-RENAME COLUMN "extCompanyId" TO "extCompanyId";
+RENAME COLUMN "dkdCompanyId" TO "extCompanyId";
 
 -- AlterTable
 ALTER TABLE "staff"
