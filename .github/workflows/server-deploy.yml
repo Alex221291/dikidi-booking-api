@@ -87,8 +87,12 @@ jobs:
         fi
         sed -i "s|image: .*|image: ${{ needs.build-and-push.outputs.docker_image_link }}|" docker-compose.yml
         echo TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} >> .env
+        echo TELEGRAM_APP_URL=${{ secrets.TELEGRAM_APP_URL }} >> .env
         echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
         echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+        echo YC_ACCEPT=${{ secrets.YC_ACCEPT }} >> .env
+        echo YC_CONTENT_TYPE=${{ secrets.YC_CONTENT_TYPE }} >> .env
+        echo YC_PATNER_TOKEN=${{ secrets.YC_PATNER_TOKEN }} >> .env
         docker compose pull
         docker compose up -d
         # Очистка неиспользуемых Docker-образов
