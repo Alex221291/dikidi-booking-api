@@ -79,8 +79,8 @@ jobs:
         SERVER_PATH=$HOME/dikidi/$REPOSITORY_BASE_NAME
         docker compose -f $SERVER_PATH/docker-compose.yml down && docker rmi ${{ needs.build-and-push.outputs.docker_image_link }}
         rm -rf $SERVER_PATH && mkdir -p $SERVER_PATH && cd $SERVER_PATH
-        curl -O https://raw.githubusercontent.com/$REPOSITORY_NAME_LOWER/${{ github.ref_name }}/docker-compose.yml
-        curl -O https://raw.githubusercontent.com/$REPOSITORY_NAME_LOWER/${{ github.ref_name }}/.env
+        curl -H "Authorization: Bearer ${{ secrets.PRODUCTION_DEPLOY_TOKEN }}" -O https://raw.githubusercontent.com/$REPOSITORY_NAME_LOWER/${{ github.ref_name }}/docker-compose.yml
+        curl -H "Authorization: Bearer ${{ secrets.PRODUCTION_DEPLOY_TOKEN }}" -O https://raw.githubusercontent.com/$REPOSITORY_NAME_LOWER/${{ github.ref_name }}/.env
         if [ ! -f .env ]; then
           echo "Error: .env file not found. Please ensure it exists in the repository."
           exit 1
