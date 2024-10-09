@@ -26,7 +26,7 @@ export class ClientService {
             where: {id: data.userId}, 
             data:{
                 clientId: client.id,
-                role: $Enums.UserRoles.CLIENT
+                role: user.role == $Enums.UserRoles.USER ? $Enums.UserRoles.CLIENT : user.role,
             }
         });
         return client;
