@@ -56,7 +56,7 @@ export class TelegramBotService extends Telegraf {
           tgChatId: chatId,
           tgUserId: userId,
           tgUserName: userName,
-          role: $Enums.UserRoles.USER
+          role: $Enums.UserRoles.CLIENT
         }
       });
 
