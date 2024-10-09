@@ -3,10 +3,9 @@ FROM node:20 AS build
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
-
+# COPY package*.json ./
 COPY . .
+RUN npm install
 RUN npm run build
 
 # Stage 2: Run app
