@@ -2,6 +2,8 @@ services:
   dikidi_backend:
     image: dikidi-b
     container_name: dikidi_backend
+    labels:
+      - "io.portainer.accesscontrol.teams=bogoko"
     restart: always
     env_file:
       - .env
