@@ -86,6 +86,7 @@ jobs:
           exit 1
         fi
         sed -i "s|image: .*|image: ${{ needs.build-and-push.outputs.docker_image_link }}|" docker-compose.yml
+        echo "\n"
         echo TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} >> .env
         echo TELEGRAM_APP_URL=${{ secrets.TELEGRAM_APP_URL }} >> .env
         echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
